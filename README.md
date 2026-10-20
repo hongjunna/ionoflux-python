@@ -13,10 +13,10 @@ The target distribution and import name is `ionoflux`:
 pip install ionoflux
 ```
 
-Until then, the implementation is on the unmerged PR branch. For macOS/Linux:
+PR #4 is merged into main. To install the reviewed source before publication (macOS/Linux):
 
 ```sh
-git clone --branch feat/v0.1-client https://github.com/hongjunna/ionoflux-python.git
+git clone https://github.com/hongjunna/ionoflux-python.git
 cd ionoflux-python
 python3 -m venv .venv
 . .venv/bin/activate
@@ -24,9 +24,9 @@ python -m pip install -e '.[dev]'
 ```
 
 On Windows PowerShell, use `py -m venv .venv` and
-`.\.venv\Scripts\Activate.ps1` instead. After the PR is merged, clone the default branch.
+`.\.venv\Scripts\Activate.ps1` instead.
 
-No PyPI search result and a 404 from its JSON API do **not** establish ownership or availability. `ionoflux-sdk` remains the alternative distribution name. Do not install an unverified namesake. The SDK code license is adopted; name/ownership setup and publishing remain pending [issue #3](https://github.com/hongjunna/ionoflux-python/issues/3).
+No PyPI search result and a 404 from its JSON API do **not** establish ownership or availability. `ionoflux-sdk` remains the alternative distribution name. Do not install an unverified namesake. The SDK code license is adopted; a production pending publisher is configured (owner-reported); publishing remains pending [issue #3](https://github.com/hongjunna/ionoflux-python/issues/3).
 
 ## Quickstart
 
