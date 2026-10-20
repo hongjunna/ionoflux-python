@@ -23,7 +23,9 @@ STAMP = "2026-10-20T00:00:00Z"
 
 @pytest.fixture
 def payloads():
-    schema = json.loads((ROOT / "docs/openapi-v0.1.json").read_text())["components"]["schemas"]
+    schema = json.loads((ROOT / "docs/openapi-v0.1.json").read_text(encoding="utf-8"))[
+        "components"
+    ]["schemas"]
     sfi = copy.deepcopy(schema["SeriesResponse"]["example"])
     kp = copy.deepcopy(sfi)
     kp.update(metric="kp", unit="index", forecast=None)
@@ -226,13 +228,13 @@ def test_safe_cli_output(monkeypatch, capsys, tmp_path, payloads):
     monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(tmp_path / "summary"))
     assert smoke.main() == 1
     output = capsys.readouterr()
-    text = output.out + output.err + (tmp_path / "summary").read_text()
+    text = output.out + output.err + (tmp_path / "summary").read_text(encoding="utf-8")
     assert KEY not in text and "detail" not in text and "x-api-key" not in text.lower()
     assert json.loads(output.out) == report
 
 
 def test_manual_trusted_workflow_only():
-    body = (ROOT / ".github/workflows/sdk-smoke.yml").read_text()
+    body = (ROOT / ".github/workflows/sdk-smoke.yml").read_text(encoding="utf-8")
     assert "workflow_dispatch:" in body and "pull_request" not in body
     assert "github.ref == 'refs/heads/main'" in body
     assert "github.repository == 'hongjunna/ionoflux-python'" in body
@@ -261,3 +263,16 @@ def test_invalid_json_is_safe_failure(payloads):
     summary, calls = exercise(payloads, lambda r, n: httpx.Response(200, content=b"not-json"))
     assert summary["result"] == "FAIL" and len(calls) == 1 and summary["session_closed"]
     assert summary["checks"][0]["http_status"] == 200
+
+
+def test_snapshot_read_is_explicit_utf8(monkeypatch, payloads):
+    original = Path.read_text
+
+    def guarded(path, *args, **kwargs):
+        if path == ROOT / "docs/openapi-v0.1.json":
+            assert kwargs.get("encoding") == "utf-8", "Snapshot must not use Windows locale"
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", guarded)
+    result, _ = exercise(payloads)
+    assert result["result"] == "PASS"

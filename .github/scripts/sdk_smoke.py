@@ -198,7 +198,7 @@ def run(
         if not key:
             raise ValueError("Missing key")
         root = base_url(url)
-        contract = json.loads((ROOT / "docs/openapi-v0.1.json").read_text())
+        contract = json.loads((ROOT / "docs/openapi-v0.1.json").read_text(encoding="utf-8"))
         end = now if now is not None else datetime.now(UTC)
         if end.tzinfo is None or end.utcoffset() != timedelta(0):
             raise ValueError("UTC required")
@@ -253,7 +253,9 @@ def main() -> int:
     safe = json.dumps(summary, sort_keys=True)
     print(safe)
     if path := os.environ.get("GITHUB_STEP_SUMMARY"):
-        Path(path).write_text("SDK live API smoke (manual only)\n\n```json\n" + safe + "\n```\n")
+        Path(path).write_text(
+            "SDK live API smoke (manual only)\n\n```json\n" + safe + "\n```\n", encoding="utf-8"
+        )
     return 0 if summary["result"] == "PASS" else 1
 
 
