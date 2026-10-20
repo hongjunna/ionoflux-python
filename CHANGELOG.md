@@ -5,14 +5,14 @@
 - Optional, main-only manually approved live API smoke workflow (not executed during development).
 - GitHub documentation reflects the successful PyPI v0.1.0 publication.
 
-## 0.1.0 — Unreleased
+## 0.1.0 — 2026-10-20
 
 - Add synchronous HTTPX client, reusable session, context manager and explicit/env Server key.
 - Cover current conditions, solar/geomagnetic series, ten statistics metrics, alerts/scales and public metadata.
 - Preserve JSON nulls, timestamp strings, attribution, unknown fields and raw response body.
 - Add structured errors, redaction, redirect refusal and bounded GET retries without quota sleep.
 - Add offline examples/tests, API comparison evidence, type checking and build/install CI.
-- Release blocked on license decision, package ownership and safe authenticated acceptance; no publication yet.
+- Published on PyPI after owner approval, licensed under PolyForm Noncommercial1.0.0; clean installation, exact hashes and both attestations verified.
 
 ### Release review fixes
 
