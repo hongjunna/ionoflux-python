@@ -1,0 +1,1993 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IonoFlux API",
+    "description": "Public OpenAPI subset captured 2026-10-20; no authenticated responses.",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://ionoflux.runvia.app",
+      "description": "production"
+    }
+  ],
+  "paths": {
+    "/v1/space-weather/current": {
+      "get": {
+        "tags": [
+          "Overview"
+        ],
+        "summary": "Current space-weather summary",
+        "description": "One-call snapshot of the latest solar, geomagnetic and ionospheric indicators with data freshness.",
+        "operationId": "current_v1_space_weather_current_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/v1/alerts": {
+      "get": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "Space-weather alerts",
+        "description": "NOAA SWPC alerts, watches, warnings and summaries (geomagnetic storms, radio blackouts, proton events),\nplus IonoFlux-detected Sporadic-E openings (`ES_OPENING`, source `ionoflux`).",
+        "operationId": "alerts_v1_alerts_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only alerts issued after this time. Default: last 7 days.",
+              "title": "Since"
+            },
+            "description": "Only alerts issued after this time. Default: last 7 days."
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "ALERT",
+                      "WARNING",
+                      "WATCH",
+                      "SUMMARY",
+                      "CANCEL",
+                      "OTHER",
+                      "ES_OPENING"
+                    ],
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by category (repeatable).",
+              "title": "Category"
+            },
+            "description": "Filter by category (repeatable)."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlertOut"
+                  },
+                  "title": "Response Alerts V1 Alerts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerts/scales": {
+      "get": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "NOAA space-weather scales (R/S/G)",
+        "description": "Current NOAA Radio blackout (R), Solar radiation storm (S) and Geomagnetic storm (G) levels,\nthe 24-hour maximum, and probabilities for the next three days.",
+        "operationId": "scales_v1_alerts_scales_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Scales V1 Alerts Scales Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/v1/sources": {
+      "get": {
+        "tags": [
+          "Meta"
+        ],
+        "summary": "Data sources and collection status",
+        "description": "Upstream providers, licenses, and the health of each collector (last success, failures, staleness).",
+        "operationId": "sources_v1_sources_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Sources V1 Sources Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/data-status": {
+      "get": {
+        "tags": [
+          "Meta"
+        ],
+        "summary": "Collected data in the database",
+        "description": "Per dataset: records held (approximate for large tables), records in the last 24 hours, time coverage,\nretention and collector freshness, plus the Parquet archive of raw reception reports. Cached for two minutes.",
+        "operationId": "data_status_summary_v1_data_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Data Status Summary V1 Data Status Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/data-status/{dataset}": {
+      "get": {
+        "tags": [
+          "Meta"
+        ],
+        "summary": "Newest records of a dataset",
+        "description": "The most recent records of one dataset as stored (reference tables: the largest entries).",
+        "operationId": "data_status_detail_v1_data_status__dataset__get",
+        "parameters": [
+          {
+            "name": "dataset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "sfi",
+                "ssn",
+                "xray",
+                "solar_wind",
+                "kp",
+                "ap",
+                "tec",
+                "ionosonde",
+                "stations",
+                "pskreporter",
+                "wsprnet",
+                "activity",
+                "alerts",
+                "places"
+              ],
+              "type": "string",
+              "description": "Dataset key from `/v1/data-status`.",
+              "title": "Dataset"
+            },
+            "description": "Dataset key from `/v1/data-status`."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Data Status Detail V1 Data Status  Dataset  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solar/flux": {
+      "get": {
+        "tags": [
+          "Solar"
+        ],
+        "summary": "Solar Flux Index (F10.7)",
+        "description": "10.7 cm solar radio flux in solar flux units (sfu), measured at Penticton up to three times per day.\nThe 20:00 UTC (“Noon”) value is the official daily index.",
+        "operationId": "solar_flux_v1_solar_flux_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days.",
+              "title": "Start"
+            },
+            "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days."
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 end time (UTC). Default: now.",
+              "title": "End"
+            },
+            "description": "ISO 8601 end time (UTC). Default: now."
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "raw",
+                "1m",
+                "5m",
+                "1h",
+                "3h",
+                "1d",
+                "7d",
+                "1mo"
+              ],
+              "type": "string",
+              "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket.",
+              "default": "raw",
+              "title": "Interval"
+            },
+            "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "description": "Maximum number of points (newest kept).",
+              "default": 5000,
+              "title": "Limit"
+            },
+            "description": "Maximum number of points (newest kept)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solar/sunspots": {
+      "get": {
+        "tags": [
+          "Solar"
+        ],
+        "summary": "Sunspot number",
+        "description": "Daily sunspot number.",
+        "operationId": "sunspots_v1_solar_sunspots_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days.",
+              "title": "Start"
+            },
+            "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days."
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 end time (UTC). Default: now.",
+              "title": "End"
+            },
+            "description": "ISO 8601 end time (UTC). Default: now."
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "raw",
+                "1m",
+                "5m",
+                "1h",
+                "3h",
+                "1d",
+                "7d",
+                "1mo"
+              ],
+              "type": "string",
+              "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket.",
+              "default": "raw",
+              "title": "Interval"
+            },
+            "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "description": "Maximum number of points (newest kept).",
+              "default": 5000,
+              "title": "Limit"
+            },
+            "description": "Maximum number of points (newest kept)."
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "swpc",
+                    "silso"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`swpc` = SESC daily sunspot number, `silso` = Estimated International Sunspot Number.",
+              "title": "Source"
+            },
+            "description": "`swpc` = SESC daily sunspot number, `silso` = Estimated International Sunspot Number."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solar/xray": {
+      "get": {
+        "tags": [
+          "Solar"
+        ],
+        "summary": "GOES X-ray flux",
+        "description": "1-minute GOES primary satellite X-ray irradiance (W/m²). Flare class: A < 1e-7 ≤ B < 1e-6 ≤ C < 1e-5 ≤ M < 1e-4 ≤ X.",
+        "operationId": "xray_v1_solar_xray_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days.",
+              "title": "Start"
+            },
+            "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days."
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 end time (UTC). Default: now.",
+              "title": "End"
+            },
+            "description": "ISO 8601 end time (UTC). Default: now."
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "raw",
+                "1m",
+                "5m",
+                "1h",
+                "3h",
+                "1d",
+                "7d",
+                "1mo"
+              ],
+              "type": "string",
+              "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket.",
+              "default": "raw",
+              "title": "Interval"
+            },
+            "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "description": "Maximum number of points (newest kept).",
+              "default": 5000,
+              "title": "Limit"
+            },
+            "description": "Maximum number of points (newest kept)."
+          },
+          {
+            "name": "band",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "long",
+                "short"
+              ],
+              "type": "string",
+              "description": "`long` = 0.1–0.8 nm (flare class), `short` = 0.05–0.4 nm.",
+              "default": "long",
+              "title": "Band"
+            },
+            "description": "`long` = 0.1–0.8 nm (flare class), `short` = 0.05–0.4 nm."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solar/wind": {
+      "get": {
+        "tags": [
+          "Solar"
+        ],
+        "summary": "Solar wind at L1",
+        "description": "Real-time solar wind from the active L1 spacecraft (1-minute).",
+        "operationId": "solar_wind_v1_solar_wind_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days.",
+              "title": "Start"
+            },
+            "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days."
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 end time (UTC). Default: now.",
+              "title": "End"
+            },
+            "description": "ISO 8601 end time (UTC). Default: now."
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "raw",
+                "1m",
+                "5m",
+                "1h",
+                "3h",
+                "1d",
+                "7d",
+                "1mo"
+              ],
+              "type": "string",
+              "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket.",
+              "default": "raw",
+              "title": "Interval"
+            },
+            "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "description": "Maximum number of points (newest kept).",
+              "default": 5000,
+              "title": "Limit"
+            },
+            "description": "Maximum number of points (newest kept)."
+          },
+          {
+            "name": "parameter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "speed",
+                "density",
+                "bt",
+                "bz"
+              ],
+              "type": "string",
+              "description": "speed (km/s), density (p/cm³), bt / bz (nT, GSM).",
+              "default": "speed",
+              "title": "Parameter"
+            },
+            "description": "speed (km/s), density (p/cm³), bt / bz (nT, GSM)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/geomagnetic/kp": {
+      "get": {
+        "tags": [
+          "Geomagnetic"
+        ],
+        "summary": "Kp index",
+        "description": "3-hourly planetary Kp index (0–9). Kp ≥ 5 corresponds to geomagnetic storm levels G1–G5.",
+        "operationId": "kp_v1_geomagnetic_kp_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days.",
+              "title": "Start"
+            },
+            "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days."
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 end time (UTC). Default: now.",
+              "title": "End"
+            },
+            "description": "ISO 8601 end time (UTC). Default: now."
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "raw",
+                "1m",
+                "5m",
+                "1h",
+                "3h",
+                "1d",
+                "7d",
+                "1mo"
+              ],
+              "type": "string",
+              "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket.",
+              "default": "raw",
+              "title": "Interval"
+            },
+            "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "description": "Maximum number of points (newest kept).",
+              "default": 5000,
+              "title": "Limit"
+            },
+            "description": "Maximum number of points (newest kept)."
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "swpc",
+                    "gfz"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`swpc` (default) or `gfz`.",
+              "title": "Source"
+            },
+            "description": "`swpc` (default) or `gfz`."
+          },
+          {
+            "name": "include_forecast",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Append the NOAA SWPC 3-day Kp forecast.",
+              "default": true,
+              "title": "Include Forecast"
+            },
+            "description": "Append the NOAA SWPC 3-day Kp forecast."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KpSeriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/geomagnetic/ap": {
+      "get": {
+        "tags": [
+          "Geomagnetic"
+        ],
+        "summary": "Ap index",
+        "description": "Daily planetary equivalent amplitude Ap (GFZ Potsdam).",
+        "operationId": "ap_v1_geomagnetic_ap_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days.",
+              "title": "Start"
+            },
+            "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days."
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 end time (UTC). Default: now.",
+              "title": "End"
+            },
+            "description": "ISO 8601 end time (UTC). Default: now."
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "raw",
+                "1m",
+                "5m",
+                "1h",
+                "3h",
+                "1d",
+                "7d",
+                "1mo"
+              ],
+              "type": "string",
+              "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket.",
+              "default": "raw",
+              "title": "Interval"
+            },
+            "description": "Aggregation bucket. `raw` returns individual observations; others return mean/min/max/count per bucket."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 1,
+              "description": "Maximum number of points (newest kept).",
+              "default": 5000,
+              "title": "Limit"
+            },
+            "description": "Maximum number of points (newest kept)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/statistics/{metric}": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "Period statistics",
+        "description": "Count, min, max, mean, median, standard deviation and net change of a metric over a period (default: 30 days).",
+        "operationId": "statistics_v1_statistics__metric__get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "metric",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "sfi",
+                "ssn",
+                "kp",
+                "ap",
+                "xray_long",
+                "xray_short",
+                "solar_wind_speed",
+                "solar_wind_density",
+                "imf_bt",
+                "imf_bz"
+              ],
+              "type": "string",
+              "description": "Metric key.",
+              "title": "Metric"
+            },
+            "description": "Metric key."
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days.",
+              "title": "Start"
+            },
+            "description": "ISO 8601 start time (UTC). Default: `end` minus 7 days."
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 end time (UTC). Default: now.",
+              "title": "End"
+            },
+            "description": "ISO 8601 end time (UTC). Default: now."
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional source override.",
+              "title": "Source"
+            },
+            "description": "Optional source override."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatisticsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "message_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Code"
+          },
+          "serial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serial"
+          },
+          "issue_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Issue Time"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "noaa_scale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Noaa Scale"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "product_id",
+          "message_code",
+          "serial",
+          "issue_time",
+          "category",
+          "title",
+          "noaa_scale",
+          "message"
+        ],
+        "title": "AlertOut"
+      },
+      "Attribution": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "license": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "url",
+          "license"
+        ],
+        "title": "Attribution"
+      },
+      "CurrentResponse": {
+        "properties": {
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "solar": {
+            "type": "object",
+            "title": "Solar"
+          },
+          "geomagnetic": {
+            "type": "object",
+            "title": "Geomagnetic"
+          },
+          "ionosphere": {
+            "type": "object",
+            "title": "Ionosphere"
+          },
+          "noaa_scales": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Noaa Scales"
+          },
+          "alerts_last_24h": {
+            "type": "integer",
+            "title": "Alerts Last 24H"
+          },
+          "freshness": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Freshness"
+          }
+        },
+        "type": "object",
+        "required": [
+          "generated_at",
+          "solar",
+          "geomagnetic",
+          "ionosphere",
+          "noaa_scales",
+          "alerts_last_24h",
+          "freshness"
+        ],
+        "title": "CurrentResponse",
+        "example": {
+          "alerts_last_24h": 3,
+          "freshness": [
+            {
+              "collector": "swpc.kp",
+              "last_success_at": "2026-10-13T00:10:00Z",
+              "stale": false
+            }
+          ],
+          "generated_at": "2026-10-13T00:12:00Z",
+          "geomagnetic": {
+            "ap": {
+              "source": "gfz",
+              "time": "2026-10-11T00:00:00Z",
+              "value": 13.0
+            },
+            "kp": {
+              "g_scale": "G0",
+              "source": "swpc",
+              "time": "2026-10-12T21:00:00Z",
+              "value": 2.0
+            }
+          },
+          "ionosphere": {
+            "tec_map_time": "2026-10-12T23:35:00Z"
+          },
+          "noaa_scales": {
+            "G": {
+              "Scale": "0",
+              "Text": "none"
+            },
+            "R": {
+              "Scale": "0",
+              "Text": "none"
+            },
+            "S": {
+              "Scale": "0",
+              "Text": "none"
+            }
+          },
+          "solar": {
+            "sfi": {
+              "source": "swpc",
+              "time": "2026-10-12T20:00:00Z",
+              "value": 123.0
+            },
+            "solar_wind": {
+              "bt": 9.8,
+              "bz": -1.64,
+              "density": 3.06,
+              "speed": 506.4,
+              "time": "2026-10-13T00:08:00Z"
+            },
+            "sunspot_number": {
+              "source": "swpc",
+              "time": "2026-10-12T00:00:00Z",
+              "value": 87.0
+            },
+            "xray": {
+              "class": "B6.1",
+              "flux": 6.1e-07,
+              "time": "2026-10-13T00:10:00Z"
+            }
+          }
+        }
+      },
+      "DataPoint": {
+        "properties": {
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Time"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "time",
+          "value"
+        ],
+        "title": "DataPoint"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "KpSeriesResponse": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/Attribution"
+          },
+          "interval": {
+            "type": "string",
+            "title": "Interval"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End"
+          },
+          "last_updated": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated",
+            "description": "Last successful collection from the upstream source."
+          },
+          "latest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DataPoint"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Most recent observation available."
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DataPoint"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "forecast": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metric",
+          "description",
+          "unit",
+          "source",
+          "attribution",
+          "interval",
+          "start",
+          "end",
+          "last_updated",
+          "latest",
+          "data"
+        ],
+        "title": "KpSeriesResponse",
+        "example": {
+          "attribution": {
+            "key": "swpc",
+            "license": "Public domain (U.S. Government work)",
+            "name": "NOAA Space Weather Prediction Center",
+            "url": "https://www.swpc.noaa.gov/"
+          },
+          "data": [
+            {
+              "count": 3,
+              "max": 123.0,
+              "min": 122.0,
+              "time": "2026-10-12T00:00:00Z",
+              "value": 122.7
+            }
+          ],
+          "description": "F10.7 cm solar radio flux",
+          "end": "2026-10-13T00:00:00Z",
+          "interval": "1d",
+          "last_updated": "2026-10-13T00:05:12Z",
+          "latest": {
+            "time": "2026-10-12T20:00:00Z",
+            "value": 123.0
+          },
+          "metric": "sfi",
+          "source": "swpc",
+          "start": "2026-09-13T00:00:00Z",
+          "unit": "sfu"
+        }
+      },
+      "SeriesResponse": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/Attribution"
+          },
+          "interval": {
+            "type": "string",
+            "title": "Interval"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End"
+          },
+          "last_updated": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated",
+            "description": "Last successful collection from the upstream source."
+          },
+          "latest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DataPoint"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Most recent observation available."
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DataPoint"
+            },
+            "type": "array",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metric",
+          "description",
+          "unit",
+          "source",
+          "attribution",
+          "interval",
+          "start",
+          "end",
+          "last_updated",
+          "latest",
+          "data"
+        ],
+        "title": "SeriesResponse",
+        "example": {
+          "attribution": {
+            "key": "swpc",
+            "license": "Public domain (U.S. Government work)",
+            "name": "NOAA Space Weather Prediction Center",
+            "url": "https://www.swpc.noaa.gov/"
+          },
+          "data": [
+            {
+              "count": 3,
+              "max": 123.0,
+              "min": 122.0,
+              "time": "2026-10-12T00:00:00Z",
+              "value": 122.7
+            }
+          ],
+          "description": "F10.7 cm solar radio flux",
+          "end": "2026-10-13T00:00:00Z",
+          "interval": "1d",
+          "last_updated": "2026-10-13T00:05:12Z",
+          "latest": {
+            "time": "2026-10-12T20:00:00Z",
+            "value": 123.0
+          },
+          "metric": "sfi",
+          "source": "swpc",
+          "start": "2026-09-13T00:00:00Z",
+          "unit": "sfu"
+        }
+      },
+      "StatisticsResponse": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean"
+          },
+          "median": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median"
+          },
+          "stddev": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stddev"
+          },
+          "first": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First"
+          },
+          "last": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last"
+          },
+          "change": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change",
+            "description": "last - first over the period"
+          },
+          "first_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Time"
+          },
+          "last_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Time"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metric",
+          "unit",
+          "source",
+          "start",
+          "end",
+          "count",
+          "min",
+          "max",
+          "mean",
+          "median",
+          "stddev",
+          "first",
+          "last",
+          "change",
+          "first_time",
+          "last_time"
+        ],
+        "title": "StatisticsResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "description": "Your IonoFlux API key.",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Overview",
+      "description": "Current conditions in a single call."
+    },
+    {
+      "name": "Solar",
+      "description": "Solar flux, sunspots, X-rays and solar wind."
+    },
+    {
+      "name": "Geomagnetic",
+      "description": "Kp and Ap indices, including the 3-day Kp forecast."
+    },
+    {
+      "name": "Ionosphere",
+      "description": "Global TEC / foF2 / MUF maps and ionosonde observations."
+    },
+    {
+      "name": "Propagation",
+      "description": "HF path predictions, hourly forecasts and band conditions."
+    },
+    {
+      "name": "Observations",
+      "description": "Observed HF propagation from real reception reports (PSK Reporter, WSPRnet)."
+    },
+    {
+      "name": "Alerts",
+      "description": "Space-weather alerts, watches, warnings and NOAA scales."
+    },
+    {
+      "name": "Statistics",
+      "description": "Period statistics for any metric."
+    },
+    {
+      "name": "Meta",
+      "description": "Data sources, collector health and geocoding."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+name: SDK checks
+on:
+  push:
+    branches: [main, 'feat/**', 'fix/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, python: '3.11'}
+          - {os: ubuntu-latest, python: '3.12'}
+          - {os: ubuntu-latest, python: '3.13'}
+          - {os: ubuntu-latest, python: '3.14'}
+          - {os: ubuntu-latest, python: '3.15'}
+          - {os: macos-latest, python: '3.14'}
+          - {os: windows-latest, python: '3.14'}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e '.[dev]'
+      - run: python -m pytest
+      - run: python examples/offline.py
+  quality-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy
+      - run: python -m build
+      - run: python -m twine check dist/*
+      - run: python scripts/check_artifacts.py
+      - run: python scripts/check_install.py
