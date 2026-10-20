@@ -1,4 +1,4 @@
-"""Official IonoFlux Python SDK (not yet published to PyPI)."""
+"""Official IonoFlux Python SDK."""
 
 from ._client import Client
 from ._exceptions import (
@@ -18,7 +18,7 @@ from ._exceptions import (
 from ._response import APIResponse, RateLimit
 from ._validation import Category, Dataset, Interval, Metric
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = [
     "Client",
     "APIResponse",

@@ -1,32 +1,14 @@
+<a href="https://ionoflux.runvia.app"><img src="https://ionoflux.runvia.app/brand/icon-512.png" width="96" height="96" alt="IonoFlux official logo: sun and radio waves on a blue background"></a>
+
 # IonoFlux Python SDK
 
-Official synchronous Python client for [IonoFlux](https://ionoflux.runvia.app). Python 3.11+; version 0.1.0 is under development and **has not been published**.
-
-[한국어](README.ko.md) · [API contract and verification limits](docs/api-contract.md) · [Development plan](docs/development-plan.md)
-
-## Install
-
-The target distribution and import name is `ionoflux`:
+Official synchronous Python SDK for [IonoFlux](https://ionoflux.runvia.app), providing space-weather, solar and geomagnetic data, alerts and public data metadata. Requires **Python 3.11+**.
 
 ```sh
-# After an approved PyPI release (not available from this project yet):
 pip install ionoflux
 ```
 
-PR #4 is merged into main. To install the reviewed source before publication (macOS/Linux):
-
-```sh
-git clone https://github.com/hongjunna/ionoflux-python.git
-cd ionoflux-python
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install -e '.[dev]'
-```
-
-On Windows PowerShell, use `py -m venv .venv` and
-`.\.venv\Scripts\Activate.ps1` instead.
-
-No PyPI search result and a 404 from its JSON API do **not** establish ownership or availability. `ionoflux-sdk` remains the alternative distribution name. Do not install an unverified namesake. The SDK code license is adopted; a production pending publisher is configured (owner-reported); publishing remains pending [issue #3](https://github.com/hongjunna/ionoflux-python/issues/3).
+[PyPI](https://pypi.org/project/ionoflux/) · [GitHub](https://github.com/hongjunna/ionoflux-python) · [한국어](https://github.com/hongjunna/ionoflux-python/blob/main/README.ko.md) · [Official site](https://ionoflux.runvia.app) · [Releases](https://github.com/hongjunna/ionoflux-python/releases)
 
 ## Quickstart
 
@@ -95,25 +77,19 @@ Only GET is implemented. At most 0..3 retries (default 1) apply only to connecti
 
 The default API root is `https://ionoflux.runvia.app/v1`; a custom `base_url` must be HTTPS, end in `/v1`, and contain no credentials, query or fragment. Redirects are never followed. Environment proxies and netrc credentials are disabled (`trust_env=False`). Session/transport lifetime is owned by `Client`; call `close()` or use `with`. The SDK does not log credentials, send them to public metadata routes or put them in URLs. Custom HTTP transports and application-level HTTP debug logging are trusted caller code; do not log raw request headers. Raw success bodies can contain arbitrary server data: treat them as sensitive application data when sharing.
 
-## Development and release status
+## Documentation and verification
 
-```sh
-python -m pytest
-ruff check .
-ruff format --check .
-mypy
-python -m build
-python -m twine check dist/*
-python scripts/check_artifacts.py
-python scripts/check_install.py
-python examples/offline.py
-```
+[API contract and limits](https://github.com/hongjunna/ionoflux-python/blob/main/docs/api-contract.md) · [Development plan](https://github.com/hongjunna/ionoflux-python/blob/main/docs/development-plan.md) · [Changelog](https://github.com/hongjunna/ionoflux-python/blob/main/CHANGELOG.md)
 
-Tests block network connections and use HTTPX MockTransport. CI runs Python 3.11–3.15 on Linux and 3.14 on Windows/macOS, plus the minimum HTTPX 0.27.0 on Python 3.11, then builds and installs wheel/sdist in separate clean environments. No workflow publishes packages. A bounded **nine-request Server-key smoke test passed** for current/SFI/Kp/statistics/alerts/scales/public metadata. See [acceptance and review](docs/release-review.md); live403/429 and every provider/endpoint permutation were not induced. Mock tests remain distinct from that real acceptance. [Follow-up #2](https://github.com/hongjunna/ionoflux-python/issues/2) covers TEC/MUF, propagation, stations and WSPR/PSK. [Release #3](https://github.com/hongjunna/ionoflux-python/issues/3) tracks license, name/ownership, completed bounded Server-key acceptance and separately authorized TestPyPI/PyPI publishing. Service tracker: [iono-flux#44](https://github.com/hongjunna/iono-flux/issues/44).
+This synchronous SDK does **not** provide async clients, pandas/DataFrame conversion, TEC/MUF, propagation, stations or WSPR/PSK queries. Those are [future work](https://github.com/hongjunna/ionoflux-python/issues/2).
+
+v0.1.0 was released on PyPI on 2026-10-20. Its [release record](https://github.com/hongjunna/ionoflux-python/releases/tag/python-v0.1.0) preserves the original artifacts and verification evidence. A bounded nine-request Server-key acceptance passed for current/SFI/Kp/statistics/alerts/scales/public metadata; actual 403/429 responses and every provider/endpoint permutation were not exercised. See [acceptance and limits](https://github.com/hongjunna/ionoflux-python/blob/main/docs/release-review.md). This documentation patch does not claim new live API acceptance.
+
+Development tests block network connections and use HTTPX MockTransport. CI checks Linux Python 3.11–3.15, Windows/macOS 3.14, minimum HTTPX 0.27.0, Ruff, mypy, README rendering, wheel/sdist builds and separate clean installations. Publishing uses protected GitHub environments and Trusted Publishing with manual approval; normal PR CI does not publish. Development setup and validation commands are in the [development plan](https://github.com/hongjunna/ionoflux-python/blob/main/docs/development-plan.md).
 
 ## SDK code license, API terms and data rights
 
-The SDK code is licensed under **[PolyForm Noncommercial License 1.0.0](LICENSE)**
+The SDK code is licensed under **[PolyForm Noncommercial License 1.0.0](https://github.com/hongjunna/ionoflux-python/blob/main/LICENSE)**
 (SPDX: `PolyForm-Noncommercial-1.0.0`). The standard text is unmodified. It permits
 noncommercial use, including personal/hobby use, and its educational, public-research
 and other listed institutional permissions apply in full, regardless of funding or
@@ -127,14 +103,14 @@ issue is not itself written authorization; do not post keys or confidential cont
 details publicly. No unverified company name or legal rights-holder name is asserted.
 
 When redistributing any SDK copy, preserve the license terms (or their official URL)
-and the plain-text Required Notice in [NOTICE](NOTICE):
+and the plain-text Required Notice in [NOTICE](https://github.com/hongjunna/ionoflux-python/blob/main/NOTICE):
 
 ```text
 Required Notice: IonoFlux (https://ionoflux.runvia.app)
 ```
 
 API access and attribution of API results are managed separately. The
-[proposed API terms](docs/api-terms-proposal.ko.md) remain **unapproved and not in effect**;
+[proposed API terms](https://github.com/hongjunna/ionoflux-python/blob/main/docs/api-terms-proposal.ko.md) remain **unapproved and not in effect**;
 adopting the SDK license does not implement those proposed UI/publication obligations,
 change current site terms or authorize uploads. The SDK's redistribution notice is
 not an automatic requirement to display a credit on every website/paper.
@@ -144,7 +120,7 @@ or API permission cannot grant third-party rights IonoFlux does not hold. Preser
 source/attribution and inspect provider-specific restrictions. This is not an
 OSI open-source license; source visibility does not remove the noncommercial terms.
 
-[Adopted policy and rights-holder review](docs/licensing-review.ko.md) ·
-[Bilingual usage notice](docs/readme-usage-draft.md) ·
-[Use cases](docs/use-cases.ko.md) · [Attribution examples](docs/attribution-examples.md) ·
-[API terms pre-effective review checklist](docs/api-terms-preflight.ko.md)
+[Adopted policy and rights-holder review](https://github.com/hongjunna/ionoflux-python/blob/main/docs/licensing-review.ko.md) ·
+[Bilingual usage notice](https://github.com/hongjunna/ionoflux-python/blob/main/docs/readme-usage-draft.md) ·
+[Use cases](https://github.com/hongjunna/ionoflux-python/blob/main/docs/use-cases.ko.md) · [Attribution examples](https://github.com/hongjunna/ionoflux-python/blob/main/docs/attribution-examples.md) ·
+[API terms pre-effective review checklist](https://github.com/hongjunna/ionoflux-python/blob/main/docs/api-terms-preflight.ko.md)

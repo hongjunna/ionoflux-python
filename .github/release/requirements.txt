@@ -2,3 +2,5 @@ build==1.6.1
 hatchling==1.32.4
 packaging==26.3
 twine==6.2.0
+readme_renderer==44.0
+cmarkgfm==2025.10.22

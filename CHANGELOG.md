@@ -1,13 +1,21 @@
 # Changelog
 
-## 0.1.0 — Unreleased
+## 0.1.1 — 2026-10-20
+
+- Replace pre-release/Pending Publisher guidance with official SDK installation and Server-key quickstarts in English and Korean.
+- Use absolute HTTPS documentation/license links for GitHub and PyPI, and the official service-hosted PNG logo with descriptive alt text.
+- Clarify supported APIs, unsupported async/pandas/TEC/MUF features and historical v0.1.0 verification versus follow-up work.
+- Refresh package URLs, version metadata and reviewed release checksums; preserve public client behavior, PolyForm Noncommercial 1.0.0 and NOTICE.
+- Keep v0.1.0 tags/artifacts immutable and protected Trusted Publishing/manual approval gates unchanged.
+
+## 0.1.0 — 2026-10-20
 
 - Add synchronous HTTPX client, reusable session, context manager and explicit/env Server key.
 - Cover current conditions, solar/geomagnetic series, ten statistics metrics, alerts/scales and public metadata.
 - Preserve JSON nulls, timestamp strings, attribution, unknown fields and raw response body.
 - Add structured errors, redaction, redirect refusal and bounded GET retries without quota sleep.
 - Add offline examples/tests, API comparison evidence, type checking and build/install CI.
-- Release blocked on license decision, package ownership and safe authenticated acceptance; no publication yet.
+- Published on PyPI after owner approval; clean installation, artifact hashes and both attestations verified.
 
 ### Release review fixes
 

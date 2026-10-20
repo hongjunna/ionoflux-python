@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ionoflux"
-version = "0.1.0"
+version = "0.1.1"
 description = "Official synchronous Python client for the IonoFlux data API"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -16,10 +16,13 @@ classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Pytho
 [project.urls]
 Homepage = "https://ionoflux.runvia.app"
 Repository = "https://github.com/hongjunna/ionoflux-python"
+Documentation = "https://github.com/hongjunna/ionoflux-python#readme"
+Changelog = "https://github.com/hongjunna/ionoflux-python/blob/main/CHANGELOG.md"
+Releases = "https://github.com/hongjunna/ionoflux-python/releases"
 Issues = "https://github.com/hongjunna/ionoflux-python/issues"
 
 [project.optional-dependencies]
-dev = ["pytest>=8,<10", "ruff>=0.11,<1", "mypy>=1.15,<2", "build>=1.2,<2", "twine>=6,<7"]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "mypy>=1.15,<2", "build>=1.2,<2", "twine>=6,<7", "readme-renderer[md]>=44,<45"]
 
 [tool.hatch.build.targets.wheel]
 # Twine 6.x rejects 2.5 metadata; our fields require only the interoperable 2.4 format.
