@@ -1,5 +1,7 @@
 # Development verification — 2026-10-20 KST
 
+> Historical v0.1.0 development evidence. The initial release was subsequently published and verified on 2026-10-20; see [the immutable release record](https://github.com/hongjunna/ionoflux-python/releases/tag/python-v0.1.0). Statements below describe the review-time state, not current publication status. This v0.1.1 documentation patch performs no new live API acceptance.
+
 Local environment: macOS, CPython 3.14. Mock tests block socket connections. Subsequent final review completed a separately authorized nine-request Server-key acceptance (release-review.md); no package-index upload or service changes. Public GET investigation is documented separately in api-contract.md.
 
 | Check | Result |

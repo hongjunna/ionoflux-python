@@ -1,5 +1,7 @@
 # v0.1.0 final code review and real API acceptance
 
+> Historical v0.1.0 development evidence. The initial release was subsequently published and verified on 2026-10-20; see [the immutable release record](https://github.com/hongjunna/ionoflux-python/releases/tag/python-v0.1.0). Statements below describe the review-time state, not current publication status. This v0.1.1 documentation patch performs no new live API acceptance.
+
 2026-10-20 KST. Reviewed PR #4 at ed4fa19, then added focused regression fixes on the same branch. No merge, package upload, service deployment, DB operation, account/key-policy change or administrator request was performed. The owner initially deferred the license decision at that review, then explicitly adopted unmodified PolyForm Noncommercial1.0.0 in a subsequent request. LICENSE/NOTICE/SPDX now implement that approval; API terms, merge and uploads remain separately unapproved.
 
 ## Findings and resolutions
