@@ -27,6 +27,7 @@ packages = ["src/ionoflux"]
 
 [tool.hatch.build.targets.sdist]
 core-metadata-version = "2.4"
+exclude = ["/docs/agent-handoff.md"]
 include = ["/src", "/tests", "/examples", "/scripts", "/docs", "/README.md", "/README.ko.md", "/CHANGELOG.md", "/LICENSE", "/pyproject.toml"]
 
 [tool.ruff]

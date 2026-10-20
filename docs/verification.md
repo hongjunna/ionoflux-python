@@ -10,7 +10,7 @@ Local environment: macOS, CPython 3.14. Mock tests block socket connections. No 
 | examples/offline.py | Passed with mock transport |
 | isolated python -m build | wheel and sdist produced; wheel built from sdist |
 | twine check | Both distributions passed |
-| artifact content scan | wheel10 files / sdist22 files; allowed paths, py.typed and no credential-like content |
+| artifact content scan | Allowed paths, py.typed and no credential-like content; exact counts/hashes printed per build |
 | fresh wheel installation | Passed outside source tree in new venv; version/import/py.typed/offline example |
 | fresh sdist installation | Passed independently in new venv; version/import/py.typed/offline example |
 | GitHub multi-version/platform CI | See PR check run; local checks do not claim matrix success |
