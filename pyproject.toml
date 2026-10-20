@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ionoflux"
+version = "0.1.0"
+description = "Official synchronous Python client for the IonoFlux data API"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["httpx>=0.27,<0.29"]
+license = "PolyForm-Noncommercial-1.0.0"
+license-files = ["LICENSE", "NOTICE"]
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Typing :: Typed"]
+
+[project.urls]
+Homepage = "https://ionoflux.runvia.app"
+Repository = "https://github.com/hongjunna/ionoflux-python"
+Issues = "https://github.com/hongjunna/ionoflux-python/issues"
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "mypy>=1.15,<2", "build>=1.2,<2", "twine>=6,<7"]
+
+[tool.hatch.build.targets.wheel]
+# Twine 6.x rejects 2.5 metadata; our fields require only the interoperable 2.4 format.
+core-metadata-version = "2.4"
+packages = ["src/ionoflux"]
+
+[tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
+exclude = ["/docs/agent-handoff.md"]
+include = ["/src", "/tests", "/examples", "/scripts", "/docs/api-contract.md", "/docs/openapi-v0.1.json", "/README.md", "/README.ko.md", "/CHANGELOG.md", "/LICENSE", "/NOTICE", "/pyproject.toml"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
