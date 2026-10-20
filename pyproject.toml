@@ -9,7 +9,8 @@ description = "Official synchronous Python client for the IonoFlux data API"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["httpx>=0.27,<0.29"]
-# License deliberately unset pending the owner's decision (issue #3).
+license = "PolyForm-Noncommercial-1.0.0"
+license-files = ["LICENSE", "NOTICE"]
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Typing :: Typed"]
 
 [project.urls]
@@ -28,7 +29,7 @@ packages = ["src/ionoflux"]
 [tool.hatch.build.targets.sdist]
 core-metadata-version = "2.4"
 exclude = ["/docs/agent-handoff.md"]
-include = ["/src", "/tests", "/examples", "/scripts", "/docs/api-contract.md", "/docs/openapi-v0.1.json", "/README.md", "/README.ko.md", "/CHANGELOG.md", "/LICENSE", "/pyproject.toml"]
+include = ["/src", "/tests", "/examples", "/scripts", "/docs/api-contract.md", "/docs/openapi-v0.1.json", "/README.md", "/README.ko.md", "/CHANGELOG.md", "/LICENSE", "/NOTICE", "/pyproject.toml"]
 
 [tool.ruff]
 target-version = "py311"

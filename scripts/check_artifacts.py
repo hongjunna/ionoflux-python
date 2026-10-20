@@ -4,6 +4,7 @@ import hashlib
 import re
 import tarfile
 import zipfile
+from email.parser import BytesParser
 from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,12 +36,34 @@ def inspect_file(name: str, body: bytes, wheel: bool) -> None:
             "LICENSE",
             "pyproject.toml",
             "PKG-INFO",
+            "NOTICE",
             ".gitignore",
         }, name
         if relative[0] == "docs":
             assert len(relative) == 2 and relative[1] in {"api-contract.md", "openapi-v0.1.json"}, (
                 "Internal development document in distribution"
             )
+
+
+OFFICIAL_LICENSE_SHA256 = "ffcca38841adb694b6f380647e15f17c446a4d1656fed51a1e2041d064c94cc8"
+REQUIRED_NOTICE = b"Required Notice: IonoFlux (https://ionoflux.runvia.app)\n"
+
+
+def inspect_licensing(files: dict[str, bytes], wheel: bool) -> None:
+    metadata_names = [n for n in files if n.endswith("/METADATA" if wheel else "/PKG-INFO")]
+    assert len(metadata_names) == 1, "Expect one distribution metadata file"
+    name = metadata_names[0]
+    metadata = BytesParser().parsebytes(files[name])
+    assert metadata["License-Expression"] == "PolyForm-Noncommercial-1.0.0", "Incorrect SPDX"
+    declared = metadata.get_all("License-File", [])
+    assert sorted(declared) == ["LICENSE", "NOTICE"], "Missing/incorrect license file declarations"
+    prefix = name.rsplit("/", 1)[0] + ("/licenses/" if wheel else "/")
+    license_body = files.get(prefix + "LICENSE")
+    assert license_body is not None, "LICENSE missing from distribution"
+    assert hashlib.sha256(license_body).hexdigest() == OFFICIAL_LICENSE_SHA256, (
+        "LICENSE differs from official unmodified text"
+    )
+    assert files.get(prefix + "NOTICE") == REQUIRED_NOTICE, "Required Notice missing or altered"
 
 
 def main() -> None:
@@ -63,6 +86,7 @@ def main() -> None:
             if name.endswith(("/METADATA", "/PKG-INFO")):
                 assert body.startswith(b"Metadata-Version: 2.4\n"), "Unsupported metadata version"
             inspect_file(name, body, artifact.suffix == ".whl")
+        inspect_licensing(files, artifact.suffix == ".whl")
         assert any(n.endswith("ionoflux/py.typed") for n in files), "py.typed missing"
         digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
         print(f"{artifact.name}: {len(files)} files, sha256={digest}")
