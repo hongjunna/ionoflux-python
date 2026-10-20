@@ -1,6 +1,6 @@
 # v0.1.0 final code review and real API acceptance
 
-2026-10-20 KST. Reviewed PR #4 at ed4fa19, then added focused regression fixes on the same branch. No merge, package upload, service deployment, DB operation, account/key-policy change or administrator request was performed. The owner explicitly deferred the license decision: LICENSE remains a pending-decision notice and no license expression or open-source classifier is assigned.
+2026-10-20 KST. Reviewed PR #4 at ed4fa19, then added focused regression fixes on the same branch. No merge, package upload, service deployment, DB operation, account/key-policy change or administrator request was performed. The owner initially deferred the license decision at that review, then explicitly adopted unmodified PolyForm Noncommercial1.0.0 in a subsequent request. LICENSE/NOTICE/SPDX now implement that approval; API terms, merge and uploads remain separately unapproved.
 
 ## Findings and resolutions
 
@@ -53,6 +53,6 @@ Wheel contains only ionoflux package/type marker and standard dist-info. Sdist i
 
 ## Decision
 
-No known remaining code blocker after the fixes **provided the latest CI passes**. The PR may be merged after final user approval; this review does not merge it. External release remains blocked by the deferred license, package-name/ownership/accounts2FA/Trusted Publisher preparation and separate TestPyPI/PyPI authorization. No upload/name reservation has occurred. See release-preparation.md and issue#3; follow-up feature APIs remain issue#2.
+No known remaining code blocker after the fixes **provided the latest CI passes**. The PR may be merged after final user approval; this review does not merge it. The code-license choice is now resolved. External release still requires package-name/ownership/accounts2FA/Trusted Publisher preparation and separate TestPyPI/PyPI authorization. No upload/name reservation has occurred. See release-preparation.md and issue#3; follow-up feature APIs remain issue#2.
 
-The owner subsequently requested evaluation of PolyForm Noncommercial1.0.0. Five policy drafts are linked from README; they do not adopt the candidate, issue an active Required Notice, change existing API terms or authorize uploads. See licensing-review.ko.md for the standard notice/UI-attribution distinction and broad institutional permission caveat.
+The owner subsequently adopted PolyForm Noncommercial1.0.0 and its institutional permissions unchanged. LICENSE/NOTICE/SPDX now apply that approval. The API terms and attribution-policy proposal remain unapproved; no upload is authorized. See licensing-review.ko.md for the standard notice/UI-attribution distinction and broad institutional permission caveat.

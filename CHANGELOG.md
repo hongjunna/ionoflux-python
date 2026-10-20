@@ -16,3 +16,10 @@
 - Tolerate oversized rate headers, validate alert object containers and detect URL-safe key patterns.
 - Restrict sdist docs to public API contract/schema; verify the minimum HTTPX in CI.
 - Document complete branch-specific installation and Windows activation.
+
+### License adoption
+
+- Adopt unmodified PolyForm Noncommercial License 1.0.0, including institutional permissions.
+- Add IonoFlux Required Notice and SPDX/PEP639 license-file declarations.
+- Verify official text integrity, notice preservation and metadata in wheel/sdist; add 14 regression cases.
+- Separate adopted SDK licensing from unapproved API terms and external publishing gates.

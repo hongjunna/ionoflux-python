@@ -68,6 +68,37 @@ base_url 기본값은 `https://ionoflux.runvia.app/v1`, 사용자 주소는 HTTP
 
 `pytest`, `ruff check .`, `ruff format --check .`, `mypy`, `python -m build`, `python -m twine check dist/*`, `python scripts/check_artifacts.py`, `python examples/offline.py`로 검증합니다. Mock 테스트는 네트워크 연결을 차단합니다. CI는 Linux Python3.11~3.15 및 Windows/macOS3.14 및 Python3.11/최소HTTPX0.27.0에서 테스트하고 wheel/sdist를 깨끗한 환경에 각각 설치합니다. 게시 workflow는 없습니다.
 
-사용자 제공 임시 Server 키로 순차9회 실제 smoke를 수행해 모두200 및 필드/타입 검증을 통과했습니다([인수/리뷰](docs/release-review.md)). 키/원본 응답은 공개하지 않았고 실제403/429나 모든 공급자/엔드포인트 조합은 유발·검증하지 않았습니다. Mock 결과와 이 한정된 실 API 인수는 구분합니다. 라이선스는 사용자 결정 전이므로 임의 지정하지 않았고 LICENSE에는 미정 안내만 있습니다. 데이터 공급자의 이용·출처 조건은 SDK 라이선스와 별개입니다. 이름/소유권·라이선스·실 API 검증·TestPyPI/PyPI는 [#3](https://github.com/hongjunna/ionoflux-python/issues/3), 상위 계획은 [iono-flux#44](https://github.com/hongjunna/iono-flux/issues/44)에서 추적합니다. 패키지 게시·운영 변경·PR 자동 병합은 실행하지 않습니다.
+사용자 제공 임시 Server 키로 순차9회 실제 smoke를 수행해 모두200 및 필드/타입 검증을 통과했습니다([인수/리뷰](docs/release-review.md)). 키/원본 응답은 공개하지 않았고 실제403/429나 모든 공급자/엔드포인트 조합은 유발·검증하지 않았습니다. Mock 결과와 이 한정된 실 API 인수는 구분합니다. SDK 코드에는 승인된 PolyForm Noncommercial License 1.0.0을 적용했습니다. 데이터 공급자의 이용·출처 조건은 SDK 라이선스와 별개입니다. 이름/소유권·라이선스·실 API 검증·TestPyPI/PyPI는 [#3](https://github.com/hongjunna/ionoflux-python/issues/3), 상위 계획은 [iono-flux#44](https://github.com/hongjunna/iono-flux/issues/44)에서 추적합니다. 패키지 게시·운영 변경·PR 자동 병합은 실행하지 않습니다.
 
-정책 검토 초안(미채택): [SDK 라이선스](docs/licensing-review.ko.md) · [한영 안내](docs/readme-usage-draft.md) · [API 약관 제안](docs/api-terms-proposal.ko.md) · [이용 사례](docs/use-cases.ko.md) · [출처 표시 예시](docs/attribution-examples.md). PolyForm Noncommercial1.0.0은 우선 검토 후보일 뿐이며 LICENSE·기존 약관은 바꾸지 않았습니다.
+## SDK 코드 라이선스·API 이용 조건·데이터 권리
+
+SDK 코드는 **[PolyForm Noncommercial License 1.0.0](LICENSE)**
+(SPDX: `PolyForm-Noncommercial-1.0.0`)을 따릅니다. 표준 본문은 수정하지 않았습니다.
+개인·취미 등 비상업적 이용을 허용하고, 원문의 교육기관·공공연구기관 등 기관 허용 범위를
+재원·관련 의무와 관계없이 그대로 수용합니다. 기업 지원 과제라는 이유만으로 교육기관의
+SDK 사용을 표준 라이선스에서 제외하지 않습니다.
+
+표준이 허용하는 범위를 벗어나는 상업적 SDK 이용은 권한 있는 권리자와의 별도 서면 허가
+계약으로 관리합니다. 문의는 [공식 서비스](https://ionoflux.runvia.app)를 통해 운영자에게
+연락해 주세요. 문의·결제·공개 이슈 작성만으로 허가가 성립하지 않으며 키나 계약의 비공개
+정보를 공개 이슈에 올리지 마세요. 확인되지 않은 법인명·권리자 실명은 사용하지 않았습니다.
+
+SDK 사본을 재배포할 때는 라이선스 본문(또는 공식 URL)과 [NOTICE](NOTICE)의 다음
+plain-text 고지를 함께 보존해야 합니다.
+
+```text
+Required Notice: IonoFlux (https://ionoflux.runvia.app)
+```
+
+API 접속·결과물의 IonoFlux 출처 표시는 별도 API 이용 조건의 영역입니다.
+[API 약관 제안](docs/api-terms-proposal.ko.md)은 **아직 최종 승인·시행되지 않은 초안**이며,
+SDK 라이선스 채택만으로 기존 사이트 약관이나 화면/논문 출처 의무를 변경하지 않습니다.
+소프트웨어 사본의 고지 보존을 모든 화면·산출물의 표시 의무로 확대하지 않습니다.
+
+공급자의 원 라이선스·출처 조건은 독립적으로 유지됩니다. IonoFlux의 SDK 상업 허가나 API
+이용 허가로 제3자의 NC·인용 조건이 해제되지 않습니다. 비상업 제한이 있으므로 OSI 의미의
+오픈소스 라이선스라고 표시하지 않습니다.
+
+[확정 정책·권리자 검토](docs/licensing-review.ko.md) · [한영 이용 안내](docs/readme-usage-draft.md) ·
+[이용 사례](docs/use-cases.ko.md) · [출처 예시](docs/attribution-examples.md) ·
+[API 약관 시행 전 검토](docs/api-terms-preflight.ko.md)

@@ -4,7 +4,7 @@ Local environment: macOS, CPython 3.14. Mock tests block socket connections. Sub
 
 | Check | Result |
 |---|---|
-| pytest | 97 passed after release-review regressions |
+| pytest | 111 passed after release and licensing regressions |
 | Ruff lint and format | Passed |
 | mypy strict | No issues in five SDK modules |
 | examples/offline.py | Passed with mock transport |
@@ -28,6 +28,6 @@ Checking dist/ionoflux-0.1.0-py3-none-any.whl: ERROR InvalidDistribution:
 Invalid distribution metadata: '2.5' is not a valid metadata version
 ```
 
-Both build targets now explicitly request core-metadata-version2.4; artifact inspection asserts the version so a regression fails CI. This follows the documented [Hatch sdist](https://hatch.pypa.io/latest/plugins/builder/sdist/) and [wheel](https://hatch.pypa.io/latest/plugins/builder/wheel/) settings. Build and Twine checks then passed; license remains unset rather than being invented to satisfy packaging.
+Both build targets now explicitly request core-metadata-version2.4; artifact inspection asserts the version so a regression fails CI. This follows the documented [Hatch sdist](https://hatch.pypa.io/latest/plugins/builder/sdist/) and [wheel](https://hatch.pypa.io/latest/plugins/builder/wheel/) settings. Build and Twine checks then passed. The later owner-approved license adoption is independent of that compatibility fix.
 
-Artifacts are intentionally ignored by Git. `python scripts/check_artifacts.py` prints SHA256 for each freshly built file; final source changes require fresh build hashes. Distribution content scanning is a bounded filename/credential-pattern check and allowlist, not a claim of universal secret detection. The LICENSE file is a pending-license notice, not an approved grant. See issue3 before publishing.
+Artifacts are intentionally ignored by Git. `python scripts/check_artifacts.py` prints SHA256 for each freshly built file; final source changes require fresh build hashes. Distribution content scanning is a bounded filename/credential-pattern check and allowlist, not a claim of universal secret detection. LICENSE now contains owner-approved, unmodified PolyForm Noncommercial1.0.0. NOTICE and SPDX/License-File fields are checked in both artifacts. TestPyPI/PyPI upload still needs separate approval; see issue3.
