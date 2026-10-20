@@ -1,6 +1,12 @@
 # v0.1.0 release preparation
 
-PR #4 was approved and squash-merged on 2026-10-20 as `b4463192737b7de8400283d5bb20a4c6933d0177`. [Merged main CI](https://github.com/hongjunna/ionoflux-python/actions/runs/39383090956) passed all nine jobs (111 tests). Follow-up publishing preparation requires review/integration and a successful CI on its final main commit before tagging. No package, release or tag has been published by this preparation work.
+PR #4 was approved and squash-merged on 2026-10-20 as `b4463192737b7de8400283d5bb20a4c6933d0177`. [Merged main CI](https://github.com/hongjunna/ionoflux-python/actions/runs/39383090956) passed all nine jobs (111 tests). The original preparation stopped before publication; the subsequently approved publication is recorded below.
+
+## Completed first publication (2026-10-20)
+
+PR #7 was subsequently approved and squash-merged as `841af55c18537cd46bd444e6160799afa7f773a9`; exact main CI39385132041 passed9/9 with135 tests. Tag `python-v0.1.0` and [production run39386641635](https://github.com/hongjunna/ionoflux-python/actions/runs/39386641635) published [ionoflux0.1.0](https://pypi.org/project/ionoflux/0.1.0/) after hongjunna manually approved `pypi`. A fresh PyPI install, import/version, pip check, SPDX/LICENSE/NOTICE/py.typed and offline example passed. Both actual downloaded file hashes match the manifest and both attestations passed cryptographic verification using pypi-attestations0.0.30. The owner confirmed2FA; production and testing variables are false again. TestPyPI was skipped. The [GitHub Release](https://github.com/hongjunna/ionoflux-python/releases/tag/python-v0.1.0) includes reviewed artifacts and hashes. No additional live API call was made. This completed release is immutable.
+
+The checklist below records the approved first-release procedure; it is not authorization to repeat a publish. Future optional smoke automation is a separate development change, excluded from the existing0.1.0 commit/tag/files. Normal development CI validates newly changed artifacts without demanding byte equality to an already published release; tag publishers retain strict release-manifest verification. A future package release requires a new version, manifest and approval.
 
 ## Exact Trusted Publisher settings
 

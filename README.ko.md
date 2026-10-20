@@ -1,10 +1,10 @@
 # IonoFlux Python SDK
 
-IonoFlux 공식 동기 Python 클라이언트입니다. Python 3.11 이상, v0.1.0 개발 중이며 **PyPI/TestPyPI에 게시하지 않았습니다**. [전체 API 계약](docs/api-contract.md) · [영문 상세 문서](README.md) · [개발 계획](docs/development-plan.md)
+IonoFlux 공식 동기 Python 클라이언트입니다. Python 3.11 이상, **v0.1.0을 [정식 PyPI](https://pypi.org/project/ionoflux/0.1.0/)에 게시했습니다**. [전체 API 계약](docs/api-contract.md) · [영문 상세 문서](README.md) · [개발 계획](docs/development-plan.md)
 
 ## 설치와 첫 조회
 
-우선 배포명·import 이름은 `ionoflux`, 목표 명령은 `pip install ionoflux`입니다. 사용자 검색 결과 없음 및 PyPI JSON 404를 확인했으나 이름 등록 가능·소유권 확보를 의미하지 않습니다. 사용자가 정식 PyPI Pending Publisher 등록을 확인했습니다(이름 확보·게시 완료를 의미하지 않음). 대체 배포명은 `ionoflux-sdk`입니다. 아직 공식 게시 전이므로 저장소를 복제하고 가상환경에서 `python -m pip install -e '.[dev]'`로 설치합니다.
+공식 배포명·import 이름은 `ionoflux`, 설치 명령은 `pip install ionoflux==0.1.0`입니다. 정식 첫 게시와 새 환경 설치 검증이 완료되었으며 이번 출시는 TestPyPI를 생략했습니다. [GitHub Release](https://github.com/hongjunna/ionoflux-python/releases/tag/python-v0.1.0)에 확정 커밋·체크섬·검증 근거가 있습니다.
 
 계정 페이지 https://ionoflux.runvia.app/account 에서 **Server 키**를 발급하고 `IONOFLUX_API_KEY` 환경변수에 저장하세요. Web 키는 일반 Python 요청에 403을 반환할 수 있습니다. 현재 Server 키도 service URL이 필요하며 웹사이트 없는 노트북·배치 사용자의 발급 안내는 기존 정책 내에서 확인해야 합니다. SDK는 키 발급이나 정책 우회를 수행하지 않습니다.
 
@@ -22,7 +22,7 @@ with Client() as client:
 
 명시적 `Client(api_key="...")`가 환경변수보다 우선합니다. `client.sources()`와 `client.data.status()`는 키 없이 가능합니다. 키를 코드·브라우저·공유 노트북 출력에 넣지 마세요.
 
-PR #4는 main에 병합되었습니다. 공식 게시 전에는 검토된 기본 브랜치에서 설치합니다(macOS/Linux):
+개발용 main 소스 설치 방법입니다(macOS/Linux). 불변 v0.1.0 소스는 `python-v0.1.0` 태그입니다:
 
 ```sh
 git clone https://github.com/hongjunna/ionoflux-python.git

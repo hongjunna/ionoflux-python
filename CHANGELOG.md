@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Optional, main-only manually approved live API smoke workflow (not executed during development).
+- GitHub documentation reflects the successful PyPI v0.1.0 publication.
+
 ## 0.1.0 — Unreleased
 
 - Add synchronous HTTPX client, reusable session, context manager and explicit/env Server key.

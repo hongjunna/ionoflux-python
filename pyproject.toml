@@ -19,7 +19,7 @@ Repository = "https://github.com/hongjunna/ionoflux-python"
 Issues = "https://github.com/hongjunna/ionoflux-python/issues"
 
 [project.optional-dependencies]
-dev = ["pytest>=8,<10", "ruff>=0.11,<1", "mypy>=1.15,<2", "build>=1.2,<2", "twine>=6,<7"]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "mypy>=1.15,<2", "build>=1.2,<2", "twine>=6,<7", "jsonschema>=4.23,<5"]
 
 [tool.hatch.build.targets.wheel]
 # Twine 6.x rejects 2.5 metadata; our fields require only the interoperable 2.4 format.

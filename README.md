@@ -1,6 +1,6 @@
 # IonoFlux Python SDK
 
-Official synchronous Python client for [IonoFlux](https://ionoflux.runvia.app). Python 3.11+; version 0.1.0 is under development and **has not been published**.
+Official synchronous Python client for [IonoFlux](https://ionoflux.runvia.app). Python 3.11+; **v0.1.0 is published on [PyPI](https://pypi.org/project/ionoflux/0.1.0/)**.
 
 [한국어](README.ko.md) · [API contract and verification limits](docs/api-contract.md) · [Development plan](docs/development-plan.md)
 
@@ -9,11 +9,10 @@ Official synchronous Python client for [IonoFlux](https://ionoflux.runvia.app). 
 The target distribution and import name is `ionoflux`:
 
 ```sh
-# After an approved PyPI release (not available from this project yet):
 pip install ionoflux
 ```
 
-PR #4 is merged into main. To install the reviewed source before publication (macOS/Linux):
+For development from main (macOS/Linux; the immutable v0.1.0 release uses tag `python-v0.1.0`):
 
 ```sh
 git clone https://github.com/hongjunna/ionoflux-python.git
@@ -26,7 +25,7 @@ python -m pip install -e '.[dev]'
 On Windows PowerShell, use `py -m venv .venv` and
 `.\.venv\Scripts\Activate.ps1` instead.
 
-No PyPI search result and a 404 from its JSON API do **not** establish ownership or availability. `ionoflux-sdk` remains the alternative distribution name. Do not install an unverified namesake. The SDK code license is adopted; a production pending publisher is configured (owner-reported); publishing remains pending [issue #3](https://github.com/hongjunna/ionoflux-python/issues/3).
+The official distribution is `ionoflux`. The initial pending-publisher registration has now completed through the approved first publication. See the [release](https://github.com/hongjunna/ionoflux-python/releases/tag/python-v0.1.0) for immutable source, artifact hashes and validation evidence.
 
 ## Quickstart
 
