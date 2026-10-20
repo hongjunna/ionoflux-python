@@ -1,10 +1,10 @@
 # Development verification — 2026-10-20 KST
 
-Local environment: macOS, CPython 3.14. Mock tests block socket connections. No production API key, no authenticated success test, no package-index upload, no service changes. Public GET investigation is documented separately in api-contract.md.
+Local environment: macOS, CPython 3.14. Mock tests block socket connections. Subsequent final review completed a separately authorized nine-request Server-key acceptance (release-review.md); no package-index upload or service changes. Public GET investigation is documented separately in api-contract.md.
 
 | Check | Result |
 |---|---|
-| pytest | 78 passed |
+| pytest | 97 passed after release-review regressions |
 | Ruff lint and format | Passed |
 | mypy strict | No issues in five SDK modules |
 | examples/offline.py | Passed with mock transport |
@@ -13,8 +13,8 @@ Local environment: macOS, CPython 3.14. Mock tests block socket connections. No 
 | artifact content scan | Allowed paths, py.typed and no credential-like content; exact counts/hashes printed per build |
 | fresh wheel installation | Passed outside source tree in new venv; version/import/py.typed/offline example |
 | fresh sdist installation | Passed independently in new venv; version/import/py.typed/offline example |
-| GitHub multi-version/platform CI | See PR check run; local checks do not claim matrix success |
-| safe authenticated production acceptance | Not run; safe test key unavailable |
+| GitHub multi-version/platform CI | Runtime head83cc217: [nine jobs passed](https://github.com/hongjunna/ionoflux-python/actions/runs/39379999139), including minimumHTTPX0.27.0; see PR checks for later documentation-head validation |
+| safe authenticated production acceptance | Nine sequential GET requests, all200 and field/type checks passed; no retries; session closed |
 | TestPyPI / PyPI | Not uploaded; explicitly excluded |
 
 Initial Windows CI exposed an implicit cp1252 file read of the UTF-8 OpenAPI fixture (77 passed/1 failed). Explicit UTF-8 reads fix the fixture and install-script example loading. Full original failure log remains linked in the PR checks.

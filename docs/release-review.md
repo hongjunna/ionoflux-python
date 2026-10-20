@@ -41,7 +41,7 @@ Server source api/deps.py confirms429 Retry-After and X-RateLimit-Reset are seco
 
 The public OpenAPI was refetched during review. All13supported GET operations' parameters, responses/security and all referenced component schemas match the captured subset exactly. The default server URL remains the SDK's HTTPS origin. Source-specific default-period prose discrepancies and fixed30day1mo are already documented in api-contract.md; SDK omits absent time bounds to preserve server defaults. The9live checks found no response mismatch requiring server changes. Live SFI/Kp/current/statistics acceptance does not claim live sunspots/X-ray/wind/Ap or every source parameter; those remain schema/source/mock verified.
 
-Python>=3.11, HTTPX>=0.27,<0.29. CI covers supported3.11–3.15 and macOS/Windows3.14 plus the minimumHTTPX0.27.0. No upper Python compatibility beyond tested stable versions is claimed. Dependencies are range-bounded, not a frozen runtime environment; known-advisory checks cannot guarantee absence of vulnerabilities. No extra runtime dependencies were introduced by the review.
+Python>=3.11, HTTPX>=0.27,<0.29. CI covers supported3.11–3.15 and macOS/Windows3.14 plus the minimumHTTPX0.27.0. No upper Python compatibility beyond tested stable versions is claimed. Public PyPI vulnerability metadata was checked on2026-10-20 for HTTPX0.27.0/0.28.1 and installed httpcore/anyio/h11/idna/certifi/typing_extensions versions; no advisories were listed. This is only the index metadata check at that time, not a complete transitive security audit. Dependencies are range-bounded, not a frozen runtime environment; known-advisory checks cannot guarantee absence of vulnerabilities. No extra runtime dependencies were introduced by the review.
 
 ## Public repository and artifact exposure review
 
@@ -54,3 +54,5 @@ Wheel contains only ionoflux package/type marker and standard dist-info. Sdist i
 ## Decision
 
 No known remaining code blocker after the fixes **provided the latest CI passes**. The PR may be merged after final user approval; this review does not merge it. External release remains blocked by the deferred license, package-name/ownership/accounts2FA/Trusted Publisher preparation and separate TestPyPI/PyPI authorization. No upload/name reservation has occurred. See release-preparation.md and issue#3; follow-up feature APIs remain issue#2.
+
+The owner subsequently requested evaluation of PolyForm Noncommercial1.0.0. Five policy drafts are linked from README; they do not adopt the candidate, issue an active Required Notice, change existing API terms or authorize uploads. See licensing-review.ko.md for the standard notice/UI-attribution distinction and broad institutional permission caveat.
