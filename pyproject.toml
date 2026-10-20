@@ -28,7 +28,7 @@ packages = ["src/ionoflux"]
 [tool.hatch.build.targets.sdist]
 core-metadata-version = "2.4"
 exclude = ["/docs/agent-handoff.md"]
-include = ["/src", "/tests", "/examples", "/scripts", "/docs", "/README.md", "/README.ko.md", "/CHANGELOG.md", "/LICENSE", "/pyproject.toml"]
+include = ["/src", "/tests", "/examples", "/scripts", "/docs/api-contract.md", "/docs/openapi-v0.1.json", "/README.md", "/README.ko.md", "/CHANGELOG.md", "/LICENSE", "/pyproject.toml"]
 
 [tool.ruff]
 target-version = "py311"

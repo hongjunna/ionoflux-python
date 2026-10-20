@@ -8,7 +8,7 @@ JSONObject = dict[str, Any]
 
 
 def _seconds(value: str | None) -> int | None:
-    if value is None or not value.isascii() or not value.isdecimal():
+    if value is None or len(value) > 20 or not value.isascii() or not value.isdecimal():
         return None
     return int(value)
 

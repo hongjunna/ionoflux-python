@@ -9,11 +9,12 @@ from pathlib import Path, PurePosixPath
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
 FORBIDDEN = {".env", ".git", ".venv", "__pycache__", ".aws", ".codex", "agent-handoff.md"}
-SECRET = re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bifx_[A-Za-z0-9]{20,}\b")
+SECRET = re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|ifx_[A-Za-z0-9_-]{20,}")
 
 
 def inspect_file(name: str, body: bytes, wheel: bool) -> None:
     parts = PurePosixPath(name).parts
+    assert not PurePosixPath(name).is_absolute() and ".." not in parts, "Unsafe archive path"
     assert not (set(parts) & FORBIDDEN), f"Forbidden path: {name}"
     assert not SECRET.search(body), f"Credential-like bytes in {name}"
     if wheel:
@@ -36,6 +37,10 @@ def inspect_file(name: str, body: bytes, wheel: bool) -> None:
             "PKG-INFO",
             ".gitignore",
         }, name
+        if relative[0] == "docs":
+            assert len(relative) == 2 and relative[1] in {"api-contract.md", "openapi-v0.1.json"}, (
+                "Internal development document in distribution"
+            )
 
 
 def main() -> None:

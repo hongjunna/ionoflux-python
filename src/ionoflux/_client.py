@@ -144,6 +144,8 @@ class Client:
             raise ConfigurationError("Set IONOFLUX_API_KEY or api_key to a Server API key")
         for attempt in range(self._max_retries + 1):
             response: httpx.Response | None = None
+            retryable = False
+            decoding_failure = False
             try:
                 # No API key at all for unauthenticated metadata routes.
                 response = self._http.get(
@@ -151,17 +153,35 @@ class Client:
                     params=params,
                     headers={"X-API-Key": self._key} if not public and self._key else {},
                 )
-            except httpx.TransportError:
-                pass
+            except httpx.RequestError as exc:
+                # Do not retain request-bearing HTTPX exceptions or exception chains.
+                decoding_failure = isinstance(exc, httpx.DecodingError)
+                retryable = isinstance(
+                    exc,
+                    (
+                        httpx.ConnectError,
+                        httpx.ConnectTimeout,
+                        httpx.ReadError,
+                        httpx.ReadTimeout,
+                        httpx.RemoteProtocolError,
+                    ),
+                )
             if response is None:
-                if attempt < self._max_retries:
+                if decoding_failure:
+                    raise ResponseError("Could not decode the IonoFlux response")
+                if retryable and attempt < self._max_retries:
                     time.sleep(0.25 * 2**attempt)
                     continue
                 raise TransportError("IonoFlux GET failed after bounded retries")
             headers = {k: self._redact(v) for k, v in response.headers.items() if k in SAFE_HEADERS}
             rate = RateLimit.from_headers(headers)
             code = response.status_code
-            if code in (502, 503, 504) and attempt < self._max_retries:
+            if (
+                code in (502, 503, 504)
+                and attempt < self._max_retries
+                and rate.retry_after is None
+                and rate.remaining != 0
+            ):
                 response.close()
                 time.sleep(0.25 * 2**attempt)
                 continue
@@ -191,13 +211,19 @@ class Client:
             valid = False
             try:
                 payload = response.json()
-                valid = isinstance(payload, list if array else dict)
+                valid = (
+                    isinstance(payload, list) and all(isinstance(item, dict) for item in payload)
+                    if array
+                    else isinstance(payload, dict)
+                )
             except (ValueError, UnicodeError):
                 pass
             raw = response.content
             response.close()
             if not valid:
-                raise ResponseError("Expected a JSON array" if array else "Expected a JSON object")
+                raise ResponseError(
+                    "Expected a JSON array of objects" if array else "Expected a JSON object"
+                )
             return APIResponse(payload, raw, code, headers, rate)
         raise AssertionError("unreachable")
 
