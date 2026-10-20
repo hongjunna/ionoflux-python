@@ -386,7 +386,9 @@ def test_all_statistics_metrics(metric):
 
 
 def test_contract_defaults_match_captured_openapi():
-    schema = json.loads((Path(__file__).parents[1] / "docs/openapi-v0.1.json").read_text())
+    schema = json.loads(
+        (Path(__file__).parents[1] / "docs/openapi-v0.1.json").read_text(encoding="utf-8")
+    )
     paths = schema["paths"]
     seen = []
 

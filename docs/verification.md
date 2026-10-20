@@ -17,6 +17,8 @@ Local environment: macOS, CPython 3.14. Mock tests block socket connections. No 
 | safe authenticated production acceptance | Not run; safe test key unavailable |
 | TestPyPI / PyPI | Not uploaded; explicitly excluded |
 
+Initial Windows CI exposed an implicit cp1252 file read of the UTF-8 OpenAPI fixture (77 passed/1 failed). Explicit UTF-8 reads fix the fixture and install-script example loading. Full original failure log remains linked in the PR checks.
+
 The first contract test incorrectly looked up concrete dataset paths in an OpenAPI document that uses path templates; corrected the fixture lookup. Initial result 71 passed/1 failed; final tests all pass. No server changes resulted.
 
 A real packaging incompatibility was detected: Hatchling1.32.4 emitted core metadata2.5 while Twine6.2.0's package validator accepts up to2.4. Initial check output:

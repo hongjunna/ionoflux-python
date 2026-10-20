@@ -30,7 +30,7 @@ def main() -> None:
                     "assert m.version('ionoflux') == ionoflux.__version__ == '0.1.0'",
                     "assert r.files('ionoflux').joinpath('py.typed').is_file()",
                     "print('Installed artifact:', ionoflux.__file__)",
-                    (ROOT / "examples/offline.py").read_text(),
+                    (ROOT / "examples/offline.py").read_text(encoding="utf-8"),
                 ]
             )
             env = {
