@@ -13,11 +13,18 @@ The target distribution and import name is `ionoflux`:
 pip install ionoflux
 ```
 
-Until then, clone this repository, create a virtual environment and run:
+Until then, the implementation is on the unmerged PR branch. For macOS/Linux:
 
 ```sh
+git clone --branch feat/v0.1-client https://github.com/hongjunna/ionoflux-python.git
+cd ionoflux-python
+python3 -m venv .venv
+. .venv/bin/activate
 python -m pip install -e '.[dev]'
 ```
+
+On Windows PowerShell, use `py -m venv .venv` and
+`.\.venv\Scripts\Activate.ps1` instead. After the PR is merged, clone the default branch.
 
 No PyPI search result and a 404 from its JSON API do **not** establish ownership or availability. `ionoflux-sdk` remains the alternative distribution name. Do not install an unverified namesake. License selection and publishing remain pending [issue #3](https://github.com/hongjunna/ionoflux-python/issues/3).
 
@@ -84,7 +91,7 @@ Shared time-series arguments: `start=None`, `end=None`, `interval="raw"`, `limit
 
 `AuthenticationError` (401), `PermissionDeniedError` (403), `NotFoundError` (404), `ValidationError` (422), `RateLimitError` (429), `ServerError` (5xx) and `RedirectError` (3xx) extend `APIError`. Exceptions carry `status_code`, redacted textual `detail`, `rate_limit` and `retry_after`; no HTTP request object. Other failures use `TransportError`, `ResponseError` or `ConfigurationError`. Locally invalid method arguments raise `ValueError`.
 
-Only GET is implemented. At most 0..3 retries (default 1) apply to transport errors and HTTP 502/503/504; 401/403/404/422/429/500 are never retried. Backoff is 0.25, 0.5, 1 seconds (maximum aggregate sleep 1.75 seconds). Retry-After is exposed, never used to trigger a long wait. HTTPX `timeout` is a finite positive per-operation timeout, **not a total wall-clock deadline**. Every retry may count against the API quota. `X-RateLimit-Reset` is seconds remaining until UTC midnight, not an epoch timestamp. `Retry-After` remains its original string; unknown/malformed numeric quota headers become `None`.
+Only GET is implemented. At most 0..3 retries (default 1) apply only to connection failures/timeouts, read failures/timeouts, remote protocol errors and HTTP 502/503/504; 401/403/404/422/429/500, response decoding errors, local protocol/configuration errors and pool timeouts are never retried. A 502/503/504 response with Retry-After or Remaining=0 is returned immediately as ServerError; the SDK does not ignore a server wait instruction. Backoff is 0.25, 0.5, 1 seconds (maximum aggregate sleep 1.75 seconds). Retry-After is exposed, never used to trigger a long wait. HTTPX `timeout` is a finite positive per-operation timeout, **not a total wall-clock deadline**. Every retry may count against the API quota. `X-RateLimit-Reset` is seconds remaining until UTC midnight, not an epoch timestamp. `Retry-After` remains its original string; unknown/malformed numeric quota headers (including more than 20 digits) become `None`.
 
 The default API root is `https://ionoflux.runvia.app/v1`; a custom `base_url` must be HTTPS, end in `/v1`, and contain no credentials, query or fragment. Redirects are never followed. Environment proxies and netrc credentials are disabled (`trust_env=False`). Session/transport lifetime is owned by `Client`; call `close()` or use `with`. The SDK does not log credentials, send them to public metadata routes or put them in URLs. Custom HTTP transports and application-level HTTP debug logging are trusted caller code; do not log raw request headers. Raw success bodies can contain arbitrary server data: treat them as sensitive application data when sharing.
 
@@ -98,9 +105,10 @@ mypy
 python -m build
 python -m twine check dist/*
 python scripts/check_artifacts.py
+python scripts/check_install.py
 python examples/offline.py
 ```
 
-Tests block network connections and use HTTPX MockTransport. CI runs Python 3.11–3.15 on Linux and 3.14 on Windows/macOS, then builds and installs wheel/sdist in separate clean environments. No workflow publishes packages. Authenticated production responses are **not yet smoke-tested**; source/OpenAPI/example-fixture agreement is not production acceptance. [Follow-up #2](https://github.com/hongjunna/ionoflux-python/issues/2) covers TEC/MUF, propagation, stations and WSPR/PSK. [Release #3](https://github.com/hongjunna/ionoflux-python/issues/3) tracks license, name/ownership, safe test key and separately authorized TestPyPI/PyPI publishing. Service tracker: [iono-flux#44](https://github.com/hongjunna/iono-flux/issues/44).
+Tests block network connections and use HTTPX MockTransport. CI runs Python 3.11–3.15 on Linux and 3.14 on Windows/macOS, plus the minimum HTTPX 0.27.0 on Python 3.11, then builds and installs wheel/sdist in separate clean environments. No workflow publishes packages. A bounded **nine-request Server-key smoke test passed** for current/SFI/Kp/statistics/alerts/scales/public metadata. See [acceptance and review](docs/release-review.md); live403/429 and every provider/endpoint permutation were not induced. Mock tests remain distinct from that real acceptance. [Follow-up #2](https://github.com/hongjunna/ionoflux-python/issues/2) covers TEC/MUF, propagation, stations and WSPR/PSK. [Release #3](https://github.com/hongjunna/ionoflux-python/issues/3) tracks license, name/ownership, completed bounded Server-key acceptance and separately authorized TestPyPI/PyPI publishing. Service tracker: [iono-flux#44](https://github.com/hongjunna/iono-flux/issues/44).
 
 The SDK license is undecided; `LICENSE` is an explicit pending-decision notice, not an open-source grant. Provider data licenses are separate: preserve API attribution and inspect source-specific conditions (including noncommercial restrictions).

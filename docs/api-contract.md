@@ -20,7 +20,7 @@ Unauthenticated GET checks (no API key, no forged Origin/Referer):
 | `/v1/space-weather/current` | 401 | JSON `detail` instructing account creation and X-API-Key header |
 | `https://pypi.org/pypi/ionoflux/json` | 404 | No project JSON found; **not** availability/ownership confirmation |
 
-These were the only operational API probes during initial investigation. Successful authenticated endpoints, revoked/Web/expired keys, quota exhaustion, server errors and exact production data payloads remain untested with a live key. Mock tests cover the source/schema contract, not real authorization or data quality. No actual key was available or created. Public responses were inspected locally; real response datasets were not copied into this repository. HTTP 403/404/422/429/5xx handling below is grounded in source/HTTP contract, not induced in production.
+These were the only operational API probes during the initial investigation, before the separately authorized nine-call acceptance. At the initial investigation, authenticated success was untested. The subsequent release review performed nine bounded live calls (see release-review.md); revoked/Web/expired keys, quota exhaustion and server errors remain uninduced. Mock tests cover the source/schema contract, not real authorization or data quality. No key was available during that initial investigation; the later acceptance used an owner-supplied temporary Server key without creating one. Public responses were inspected locally; real response datasets were not copied into this repository. HTTP 403/404/422/429/5xx handling below is grounded in source/HTTP contract, not induced in production.
 
 ## Supported operations
 
@@ -79,6 +79,8 @@ Protected routes require a Server key for ordinary Python usage; keyless access 
 
 Quota headers X-RateLimit-Limit/Remaining are integers. X-RateLimit-Reset is seconds until the next UTC midnight. On exceeded daily quota Retry-After is the same remaining seconds; never interpret it as epoch. Header presence is not guaranteed for failures before quota consumption or infrastructure errors. No-key metadata may have none. SDK stores Retry-After as string to avoid guessing unexpected proxy formats. Missing/malformed numeric quota fields become None.
 
-Redirects are refused, HTTPS roots only, trust_env disabled. Only safe GET retries with bounded count/backoff; no429 auto-retry or daily sleep. Returned metadata excludes request objects and arbitrary response headers. Application/raw transport debug logging remains the caller's responsibility.
+Redirects are refused, HTTPS roots only, trust_env disabled. Only selected transient connection/read/remote-protocol failures and HTTP502/503/504 retry with bounded count/backoff; responses with Retry-After or remaining quota0 do not retry. Pool/local protocol/decoding failures do not retry; no429 auto-retry or daily sleep. Returned metadata excludes request objects and arbitrary response headers. Application/raw transport debug logging remains the caller's responsibility.
 
 References: [HTTPX transports](https://www.python-httpx.org/advanced/transports/), [PyPA metadata](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/), [Python support status](https://devguide.python.org/versions/). These informed transport testing, packaging and CI choices; implementation behavior above is grounded in the service source/schema.
+
+Release review 2026-10-20: refetched public OpenAPI; all 13 selected GET operations parameters/responses/security and all referenced schemas match this snapshot exactly. This confirms public specification agreement, not authenticated response success. Oversized numeric quota fields (>20digits) are treated as missing; Retry-After remains a string.
