@@ -15,10 +15,11 @@ v0.1.1 (documentation/metadata patch) was published on 2026-10-20 from `f6e8b92`
 | Workflow filename | `publish.yml` | `publish-test.yml` |
 | Environment | `pypi` | `testpypi` |
 | SDK tag for 0.1.2 | `python-v0.1.2` | `python-test-v0.1.2` |
+| Enable variable | `PYPI_PUBLISH_ENABLED` | `TESTPYPI_PUBLISH_ENABLED` |
 
 Production Trusted Publishing succeeded for v0.1.0 through `publish.yml` / `pypi`. Preserve that publisher and environment configuration. TestPyPI registration remains separate and does not block this v0.1.2 release.
 
-Both GitHub environments are configured with tag-only patterns (`python-v*` / `python-test-v*`) and required reviewer `hongjunna`. Self-approval is explicitly authorized by the owner for this personal repository; it still requires a manual approval action. GitHub currently permits administrator bypass of environment protection; do not use bypass. Repository administrators can also change workflows, variables and protections; this is not a two-person approval system. Since 2026-10-21 there is no separate enable variable: the protected environment's manual approval is the only publication switch (the former `PYPI_PUBLISH_ENABLED`/`TESTPYPI_PUBLISH_ENABLED` gates duplicated it and were removed). No API token or long-lived PyPI credential is needed.
+Both GitHub environments are configured with tag-only patterns (`python-v*` / `python-test-v*`) and required reviewer `hongjunna`. Self-approval is explicitly authorized by the owner for this personal repository; it still requires a manual approval action. GitHub currently permits administrator bypass of environment protection; do not use bypass. Repository administrators can also change workflows, variables and protections; this is not a two-person approval system. Both enable variables are `false` and must remain so until the respective publication is explicitly approved. No API token or long-lived PyPI credential is needed.
 
 ## Workflow safety and verification
 
@@ -33,11 +34,11 @@ Both GitHub environments are configured with tag-only patterns (`python-v*` / `p
 
 1. Review/integrate the v0.1.2 PR and wait for its exact main CI to pass; manual validation must reproduce the manifest hashes. Verify environments/variables and the existing Trusted Publisher still match the table.
 2. Owner confirms PyPI account email/2FA/recovery and project management rights; production publication already succeeded for v0.1.0. No new organization approval or TestPyPI run is required.
-3. Obtain explicit production posting approval covering the reviewed commit/artifact hashes and creating/pushing **only** `python-v<version>`.
-4. After approval, create the exact SDK tag at the reviewed main commit and push it. Verify the build artifact and manually approve the `pypi` environment job. This final manual environment action is independent of chat approval; never bypass it.
-5. After posting, install `ionoflux==0.1.2` from PyPI in a clean environment, verify metadata/import/offline example and index hashes/attestations. Inspect public README rendering and license notices. A live API check requires a separately safe key/budget if needed; the prior nine successful requests are reused here.
+3. Obtain explicit production posting approval covering the reviewed commit/artifact hashes, enabling `PYPI_PUBLISH_ENABLED`, and creating/pushing **only** `python-v0.1.2`. Current authorization excludes these actions. Keep the TestPyPI flag false.
+4. After approval, set the production flag true, create the exact SDK tag at the reviewed main commit and push it. Verify the build artifact and manually approve the `pypi` environment job. This final manual environment action is independent of chat approval; never bypass it.
+5. After posting, disable the flag, install `ionoflux==0.1.2` from PyPI in a clean environment, verify metadata/import/offline example and index hashes/attestations. Inspect public README rendering and license notices. A live API check requires a separately safe key/budget if needed; the prior nine successful requests are reused here.
 
-A package defect after posting requires a new version; consider yanking a broken version with a reason instead of replacing files. Any GitHub Release creation requires separate authorization. TestPyPI uses its own Pending Publisher (registered 2026-10-21: `ionoflux` / `hongjunna/ionoflux-python` / `publish-test.yml` / `testpypi`), a `python-test-v<version>` tag on the same reviewed commit and manual `testpypi` environment approval; it never blocks a production release.
+A package defect after posting requires a new version; consider yanking a broken version with a reason instead of replacing files. Any GitHub Release creation requires separate authorization. Future TestPyPI testing requires its own Pending Publisher/account confirmation, version/candidate review, flag and upload authorization; it does not block this production release.
 
 The adopted SDK code license is the unmodified PolyForm Noncommercial License 1.0.0, with IonoFlux Required Notice and SPDX metadata. SDK license approval is complete. API terms remain a draft, and [legal/provider-rights preflight](api-terms-preflight.ko.md) must precede any later API terms activation. No service/DB/key-policy/terms changes are part of publishing.
 
