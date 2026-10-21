@@ -16,35 +16,35 @@ spec.loader.exec_module(release)
 
 @pytest.mark.parametrize("index,prefix", [("pypi", "python-v"), ("testpypi", "python-test-v")])
 def test_exact_release_tag(index, prefix):
-    release.validate_tag(index, "push", release.REPOSITORY, f"refs/tags/{prefix}0.1.2", "0.1.2")
+    release.validate_tag(index, "push", release.REPOSITORY, f"refs/tags/{prefix}0.1.3", "0.1.3")
 
 
 @pytest.mark.parametrize(
     "event,repo,ref",
     [
-        ("workflow_dispatch", release.REPOSITORY, "refs/tags/python-v0.1.2"),
-        ("pull_request", release.REPOSITORY, "refs/tags/python-v0.1.2"),
-        ("push", "other/ionoflux-python", "refs/tags/python-v0.1.2"),
+        ("workflow_dispatch", release.REPOSITORY, "refs/tags/python-v0.1.3"),
+        ("pull_request", release.REPOSITORY, "refs/tags/python-v0.1.3"),
+        ("push", "other/ionoflux-python", "refs/tags/python-v0.1.3"),
         ("push", release.REPOSITORY, "refs/heads/main"),
-        ("push", release.REPOSITORY, "refs/tags/v0.1.2"),
-        ("push", release.REPOSITORY, "refs/tags/python-test-v0.1.2"),
+        ("push", release.REPOSITORY, "refs/tags/v0.1.3"),
+        ("push", release.REPOSITORY, "refs/tags/python-test-v0.1.3"),
         ("push", release.REPOSITORY, "refs/tags/python-v0.2.0"),
     ],
 )
 def test_reject_unapproved_trigger(event, repo, ref):
     with pytest.raises(ValueError):
-        release.validate_tag("pypi", event, repo, ref, "0.1.2")
+        release.validate_tag("pypi", event, repo, ref, "0.1.3")
 
 
 def test_unknown_index():
     with pytest.raises(ValueError):
         release.validate_tag(
-            "other", "push", release.REPOSITORY, "refs/tags/python-v0.1.2", "0.1.2"
+            "other", "push", release.REPOSITORY, "refs/tags/python-v0.1.3", "0.1.3"
         )
 
 
 def candidate(tmp_path):
-    files = {"ionoflux-0.1.2-py3-none-any.whl": b"wheel", "ionoflux-0.1.2.tar.gz": b"sdist"}
+    files = {"ionoflux-0.1.3-py3-none-any.whl": b"wheel", "ionoflux-0.1.3.tar.gz": b"sdist"}
     for name, body in files.items():
         (tmp_path / name).write_bytes(body)
     return {"sha256": {n: hashlib.sha256(b).hexdigest() for n, b in files.items()}}
@@ -59,7 +59,7 @@ def test_checksums(tmp_path):
 
 def test_tampered_artifact(tmp_path):
     manifest = candidate(tmp_path)
-    (tmp_path / "ionoflux-0.1.2.tar.gz").write_bytes(b"changed")
+    (tmp_path / "ionoflux-0.1.3.tar.gz").write_bytes(b"changed")
     with pytest.raises(ValueError, match="differs"):
         release.verify_artifacts(tmp_path, manifest)
 
@@ -106,10 +106,10 @@ def test_publisher_security_boundaries(index, file):
 
 
 def test_release_version_matches_project():
-    path = ROOT / ".github/release/0.1.2.json"
+    path = ROOT / ".github/release/0.1.3.json"
     if not path.exists():
         pytest.skip("Repository-only release manifest")
-    assert json.loads(path.read_text())["version"] == "0.1.2"
+    assert json.loads(path.read_text())["version"] == "0.1.3"
 
 
 @pytest.mark.parametrize("status", [401, 403, 429, 500])
@@ -119,7 +119,7 @@ def test_index_error_fails_closed(monkeypatch, status):
 
     monkeypatch.setenv("GITHUB_EVENT_NAME", "push")
     monkeypatch.setenv("GITHUB_REPOSITORY", release.REPOSITORY)
-    monkeypatch.setenv("GITHUB_REF", "refs/tags/python-v0.1.2")
+    monkeypatch.setenv("GITHUB_REF", "refs/tags/python-v0.1.3")
     monkeypatch.setenv("GH_TOKEN", "mock-ci-token")
     monkeypatch.setattr(release.subprocess, "run", lambda *a, **k: None)
     monkeypatch.setattr(release.subprocess, "check_output", lambda *a, **k: "abc\n")
@@ -139,7 +139,7 @@ def test_index_error_fails_closed(monkeypatch, status):
 
     monkeypatch.setattr(release, "urlopen", open_response)
     with pytest.raises(RuntimeError, match="availability"):
-        release.gate("pypi", "0.1.2")
+        release.gate("pypi", "0.1.3")
 
 
 @pytest.mark.parametrize("available", [True, False])
@@ -149,7 +149,7 @@ def test_version_must_be_absent(monkeypatch, available):
 
     monkeypatch.setenv("GITHUB_EVENT_NAME", "push")
     monkeypatch.setenv("GITHUB_REPOSITORY", release.REPOSITORY)
-    monkeypatch.setenv("GITHUB_REF", "refs/tags/python-v0.1.2")
+    monkeypatch.setenv("GITHUB_REF", "refs/tags/python-v0.1.3")
     monkeypatch.setenv("GH_TOKEN", "mock-ci-token")
     monkeypatch.setattr(release.subprocess, "run", lambda *a, **k: None)
     monkeypatch.setattr(release.subprocess, "check_output", lambda *a, **k: "abc\n")
@@ -171,10 +171,10 @@ def test_version_must_be_absent(monkeypatch, available):
 
     monkeypatch.setattr(release, "urlopen", open_response)
     if available:
-        release.gate("pypi", "0.1.2")
+        release.gate("pypi", "0.1.3")
     else:
         with pytest.raises(ValueError, match="already exists"):
-            release.gate("pypi", "0.1.2")
+            release.gate("pypi", "0.1.3")
 
 
 def test_missing_main_ci_stops_before_index(monkeypatch):
@@ -182,7 +182,7 @@ def test_missing_main_ci_stops_before_index(monkeypatch):
 
     monkeypatch.setenv("GITHUB_EVENT_NAME", "push")
     monkeypatch.setenv("GITHUB_REPOSITORY", release.REPOSITORY)
-    monkeypatch.setenv("GITHUB_REF", "refs/tags/python-v0.1.2")
+    monkeypatch.setenv("GITHUB_REF", "refs/tags/python-v0.1.3")
     monkeypatch.setenv("GH_TOKEN", "mock-ci-token")
     monkeypatch.setattr(release.subprocess, "run", lambda *a, **k: None)
     monkeypatch.setattr(release.subprocess, "check_output", lambda *a, **k: "abc\n")
@@ -194,5 +194,5 @@ def test_missing_main_ci_stops_before_index(monkeypatch):
 
     monkeypatch.setattr(release, "urlopen", open_response)
     with pytest.raises(ValueError, match="successful main CI"):
-        release.gate("pypi", "0.1.2")
+        release.gate("pypi", "0.1.3")
     assert len(calls) == 1

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.3 — 2026-10-21
+
+- New `client.ionosphere`: `tec()`, `muf()` (model or ionosonde source) and `stations()`.
+- New `client.propagation`: `path()`, `forecast()` and `conditions()` for HF path predictions and band conditions.
+- New `client.observations`: `live()`, `paths()`, `bands()` and `callsign()` for PSK Reporter / WSPRnet reception reports.
+- New exported literal types `Band`, `PropagationMode` and `NoiseEnvironment`. Arguments outside server ranges raise `ValueError` before any request.
+- Publishing workflows no longer read the `PYPI_PUBLISH_ENABLED` / `TESTPYPI_PUBLISH_ENABLED` variables.
+- Existing methods, retry/redirect/redaction behavior, UTM tags, PolyForm Noncommercial 1.0.0 and NOTICE are unchanged.
+
 ## 0.1.2 — 2026-10-21
 
 - Missing-key `ConfigurationError` now links the official key page: `Get an API key: https://ionoflux.runvia.app/account`. Public metadata calls still need no key.

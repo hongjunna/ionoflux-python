@@ -42,7 +42,32 @@ All HTTP methods are GET. Protected routes use `X-API-Key` (OpenAPI APIKeyHeader
 | `/v1/data-status` | `data.status()` | public/no key | generated_at, datasets, spot_archive |
 | `/v1/data-status/{dataset}` | `data.status(dataset)` | required dataset; public/no key | dataset string, rows array |
 
-The SDK does not add pagination, inference, API writes or a generic arbitrary-path request method. New resources can share the internal bounded GET transport. Public data-status detail may show newest rows from datasets outside the dedicated v0.1 series scope; that is metadata/latest-record inspection, not a full WSPR/PSK/TEC client.
+The SDK does not add pagination, inference, API writes or a generic arbitrary-path request method. New resources can share the internal bounded GET transport. Public data-status detail may show newest rows from datasets outside the dedicated v0.1 series scope; that is metadata/latest-record inspection; use the v0.1.3 observation and ionosphere calls for query-shaped data.
+
+## v0.1.3 additions: ionosphere, propagation and observations
+
+Checked 2026-10-21 KST against service source `backend/app/api/v1/routes/{ionosphere,propagation,observations}.py` and the live public OpenAPI. Every parameter name, type, enum, default and range below matched between the two; no server source was changed. All ten operations are GET with `X-API-Key` (CallerDep), so the SDK requires a key and consumes ordinary quota per call. No authenticated live request was made for this version; behavior is covered by mocked tests only.
+
+| Endpoint | SDK method | Parameters (server default) | Response object |
+|---|---|---|---|
+| `/v1/ionosphere/tec` | `ionosphere.tec()` | time (latest; nearest map ±15 min), lat −90..90 + lon −180..180 together, format json/geojson | Grid: time/source/attribution/units/grid + lon/lat/tec/anomaly arrays, or a GeoJSON FeatureCollection. Point: time/latitude/longitude/tec_tecu/fof2_mhz/hmf2_km/attribution |
+| `/v1/ionosphere/muf` | `ionosphere.muf()` | as tec, hop_km 0..4000 (3000), source model/ionosonde (model) | Model grid/point like tec with muf/fof2 (+m3000f2, hop_km). Ionosonde: time/window_minutes/attribution/stations[] |
+| `/v1/ionosphere/stations` | `ionosphere.stations()` | max_age_hours 1..48 (6) | attribution, stations[] (code/name/latitude/longitude/time/fof2_mhz/muf3000_mhz/m3000f2/hmf2_km/foe_mhz/tec_tecu/confidence) |
+| `/v1/propagation/path` | `propagation.path(from_, to, frequency)` | from/to 2..200 chars, frequency 1.8..54, datetime (now, ≤72 h ahead), mode, power >0..100000 (100), tx_gain/rx_gain −20..30 (2.15), noise (rural), path auto/short/long | frequency_mhz, datetime, path, prediction, details, bands[], observed (null unless about now), drivers, model, attribution[] |
+| `/v1/propagation/forecast` | `propagation.forecast(from_, to)` | start (current hour), hours 1..72 (24), same link options | path, mode, power_w, path_type, hours[] (time/muf_mhz/best_band/best_reliability/recommended_frequencies_mhz/confidence/ionosphere_basis/kp/bands), model |
+| `/v1/propagation/conditions` | `propagation.conditions(location=None)` | location 2..200 chars (global), datetime | datetime/ionosphere_basis/confidence/drivers plus local per-band status, or global day/night open_fraction per band |
+| `/v1/observations/live` | `observations.live()` | minutes 1..60 (15), band, mode ≤16 chars, source pskreporter/wsprnet, bbox `minLon,minLat,maxLon,maxLat`, limit 1..5000 (2000) | grid-square paths plus notes/attribution |
+| `/v1/observations/paths` | `observations.paths(from_, to)` | radius_km 50..1500 (500), hours >0..6 (1), band | from/to, radius_km, hours, a_to_b/b_to_a (total_spots, bands, recent), notes, attribution |
+| `/v1/observations/bands` | `observations.bands(location=None)` | radius_km 50..3000 (1000), role rx/tx (rx), minutes 5..60 (15), mode | area/coordinates/radius_km/role/minutes/bands[]/notes/attribution |
+| `/v1/observations/callsign/{callsign}` | `observations.callsign(callsign)` | role tx/rx (tx), hours >0..48 (24), limit 1..1000 (300) | callsign/role/hours/generated_at/space_weather plus reports/notes/attribution |
+
+Enums: mode ft8/ft4/wspr/cw/ssb/am/rtty/psk31 (propagation, lower case); noise city/residential/rural/quiet; band 160m/80m/60m/40m/30m/20m/17m/15m/12m/10m/6m. Observation `mode` is free text compared by the server. Locations are `lat,lon`, Maidenhead locators or place names; place names are geocoded by the server (OpenStreetMap Nominatim, ODbL attribution added to propagation responses).
+
+SDK behavior: arguments are checked locally with the server ranges above and raise `ValueError` without a request. The SDK sends its signature defaults explicitly (as with the v0.1 series calls), except optional times and locations, which are omitted so the server decides. `lat`/`lon` must be passed together; the server silently returns the full grid for one coordinate. `muf(source="ionosonde")` rejects lat/lon, geojson and a non-default hop_km because the server ignores them for measured values. Callsigns follow the server pattern and are percent-encoded as one path segment; a callsign containing `/` (portable suffix) cannot match the server's single-segment route and is expected to return 404. Responses are preserved as JSON without new runtime models, like the v0.1 surface.
+
+Model versus observation: model TEC/MUF and every propagation result come from NOAA GloTEC NmF2/hmF2 with the IonoFlux simplified ITU-R P.533 path model (`model` field lists limitations; future times use same-UT persistence with a storm correction, and `ionosphere_basis` may fall back to climatology). Ionosonde MUF and stations are GIRO measurements within a time window. Observations are PSK Reporter / WSPRnet reception reports: proof of one-way propagation at that moment, never proof of a closed band, and SNR values are not comparable across receivers.
+
+Provider terms (from public `/v1/sources`, 2026-10-21): GloTEC public domain (U.S. Government work); GIRO data policy requires acknowledgement; PSK Reporter free public feed with attribution; WSPRnet via WSPR.live free for research/projects with freely accessible results and **no commercial use**. Keep each response's `attribution` and check current terms in `sources()`. Query scope is bounded by the server (live ≤60 min, paths ≤6 h, callsign ≤48 h, newest rows only); the SDK adds no pagination, bulk export or historical spot download.
 
 ## Types, units and semantic distinctions
 
@@ -65,7 +90,7 @@ Alert: id/source/product_id/category/title/message strings; issue_time datetime;
 | solar_wind_density | p/cm^3 | swpc-rtsw |
 | imf_bt / imf_bz | nT | swpc-rtsw |
 
-Kp series/statistics use status==observed. The optional Kp `forecast` is separate and includes time/kp/status/noaa_scale; preserve estimated/predicted status and never label it an observation. NOAA scales includes forecasts/probabilities. Future TEC/MUF and path products require further model/measurement distinction; no ML prediction claim is made by this SDK. SILSO and other source choices can change values/timestamps and carry different terms: see sources().
+Kp series/statistics use status==observed. The optional Kp `forecast` is separate and includes time/kp/status/noaa_scale; preserve estimated/predicted status and never label it an observation. NOAA scales includes forecasts/probabilities. TEC/MUF and path products distinguish model and measurement as described in the v0.1.3 section; no ML prediction claim is made by this SDK. SILSO and other source choices can change values/timestamps and carry different terms: see sources().
 
 Dataset enum: sfi, ssn, xray, solar_wind, kp, ap, tec, ionosonde, stations, pskreporter, wsprnet, activity, alerts, places. Summary dataset fields include key/category/table/sources/collectors/records/approximate/last_24h/total_collected/first_time/last_time/retention_days/last_success_at/stale. Nullable counts/coverage are not zero. retention_days null indicates no reported policy, **not guaranteed permanent storage**. Large counts may be approximate. Summary is cached120seconds. Detail returns at most30 newest rows; raw PSK detail limits the source query to1hour, WSPR/activity to1day. Retention/coverage is dynamic: the observed metadata reported raw PSK/WSPR retention30days while most solar/geomagnetic values reported null retention policy. Check current metadata rather than hard-coding a coverage promise.
 

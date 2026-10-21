@@ -113,7 +113,7 @@ def test_requests_carry_fixed_sdk_utm_tags_and_version():
     with client(handler) as c:
         c.sources()
         c.solar.flux(interval="1d", limit=10)
-    assert ionoflux.__version__ == "0.1.2"
+    assert ionoflux.__version__ == "0.1.3"
     for r in seen:
         assert {k: r.url.params[k] for k in tags} == tags
         assert r.headers["user-agent"] == f"ionoflux-python/{ionoflux.__version__}"
