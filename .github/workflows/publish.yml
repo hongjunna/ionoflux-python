@@ -46,8 +46,8 @@ jobs:
           if-no-files-found: error
           retention-days: 7
   publish:
-    # Manual dispatch only validates. Publication requires a separately approved flag AND tag.
-    if: github.event_name == 'push' && github.repository == 'hongjunna/ionoflux-python' && vars.PYPI_PUBLISH_ENABLED == 'true'
+    # Manual dispatch only validates. Publication requires an exact tag push AND manual environment approval.
+    if: github.event_name == 'push' && github.repository == 'hongjunna/ionoflux-python'
     needs: build
     runs-on: ubuntu-latest
     environment:
