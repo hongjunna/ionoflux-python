@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 — 2026-10-21
+
+- Missing-key `ConfigurationError` now links the official key page: `Get an API key: https://ionoflux.runvia.app/account`. Public metadata calls still need no key.
+- Every request carries fixed usage-statistics tags `utm_source=python`, `utm_medium=sdk` and `utm_content=<SDK version>`; caller parameters are preserved and no key/user/host data is added.
+- `User-Agent` now reports the actual package version (`ionoflux-python/0.1.2`) instead of the stale `0.1.0` value.
+- New reviewed release manifest `.github/release/0.1.2.json`; v0.1.0/v0.1.1 tags and artifacts stay immutable.
+
 ## 0.1.1 — 2026-10-20
 
 - Replace pre-release/Pending Publisher guidance with official SDK installation and Server-key quickstarts in English and Korean.

@@ -27,7 +27,7 @@ with Client() as client:
     print(current.rate_limit.remaining)
 ```
 
-Explicit `Client(api_key="...")` overrides the environment. No key is required for `sources()` or `data.status()`. Keep keys out of source control, browsers and shared notebook outputs.
+Explicit `Client(api_key="...")` overrides the environment. No key is required for `sources()` or `data.status()`; other calls without a key raise `ConfigurationError` with the key page link (https://ionoflux.runvia.app/account). Keep keys out of source control, browsers and shared notebook outputs.
 
 ```python
 from datetime import UTC, datetime
@@ -76,6 +76,8 @@ Shared time-series arguments: `start=None`, `end=None`, `interval="raw"`, `limit
 Only GET is implemented. At most 0..3 retries (default 1) apply only to connection failures/timeouts, read failures/timeouts, remote protocol errors and HTTP 502/503/504; 401/403/404/422/429/500, response decoding errors, local protocol/configuration errors and pool timeouts are never retried. A 502/503/504 response with Retry-After or Remaining=0 is returned immediately as ServerError; the SDK does not ignore a server wait instruction. Backoff is 0.25, 0.5, 1 seconds (maximum aggregate sleep 1.75 seconds). Retry-After is exposed, never used to trigger a long wait. HTTPX `timeout` is a finite positive per-operation timeout, **not a total wall-clock deadline**. Every retry may count against the API quota. `X-RateLimit-Reset` is seconds remaining until UTC midnight, not an epoch timestamp. `Retry-After` remains its original string; unknown/malformed numeric quota headers (including more than 20 digits) become `None`.
 
 The default API root is `https://ionoflux.runvia.app/v1`; a custom `base_url` must be HTTPS, end in `/v1`, and contain no credentials, query or fragment. Redirects are never followed. Environment proxies and netrc credentials are disabled (`trust_env=False`). Session/transport lifetime is owned by `Client`; call `close()` or use `with`. The SDK does not log credentials, send them to public metadata routes or put them in URLs. Custom HTTP transports and application-level HTTP debug logging are trusted caller code; do not log raw request headers. Raw success bodies can contain arbitrary server data: treat them as sensitive application data when sharing.
+
+For IonoFlux usage statistics every request also carries fixed origin tags `utm_source=python&utm_medium=sdk&utm_content=<SDK version>` and the `User-Agent: ionoflux-python/<SDK version>` header. They contain no key, user, host or environment data.
 
 ## Documentation and verification
 

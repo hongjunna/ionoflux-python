@@ -11,7 +11,7 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / ".github/release/0.1.1.json"
+MANIFEST = ROOT / ".github/release/0.1.2.json"
 REPOSITORY = "hongjunna/ionoflux-python"
 
 
@@ -26,8 +26,8 @@ def validate_tag(index: str, event: str, repository: str, ref: str, version: str
 def verify_artifacts(dist: Path, manifest: dict[str, object]) -> None:
     expected = manifest["sha256"]
     if not isinstance(expected, dict) or set(expected) != {
-        "ionoflux-0.1.1-py3-none-any.whl",
-        "ionoflux-0.1.1.tar.gz",
+        "ionoflux-0.1.2-py3-none-any.whl",
+        "ionoflux-0.1.2.tar.gz",
     }:
         raise ValueError("Unexpected artifact manifest")
     actual = {p.name for p in dist.iterdir() if p.is_file()}

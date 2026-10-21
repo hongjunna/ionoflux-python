@@ -28,7 +28,7 @@ def main() -> None:
                 [
                     "import importlib.metadata as m, importlib.resources as r",
                     "import ionoflux",
-                    "assert m.version('ionoflux') == ionoflux.__version__ == '0.1.1'",
+                    "assert m.version('ionoflux') == ionoflux.__version__ == '0.1.2'",
                     "assert r.files('ionoflux').joinpath('py.typed').is_file()",
                     "print('Installed artifact:', ionoflux.__file__)",
                     (ROOT / "examples/offline.py").read_text(encoding="utf-8"),
