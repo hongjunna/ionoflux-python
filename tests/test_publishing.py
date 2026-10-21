@@ -77,13 +77,10 @@ def test_manifest_path_escape(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "index,file,flag",
-    [
-        ("pypi", "publish.yml", "PYPI_PUBLISH_ENABLED"),
-        ("testpypi", "publish-test.yml", "TESTPYPI_PUBLISH_ENABLED"),
-    ],
+    "index,file",
+    [("pypi", "publish.yml"), ("testpypi", "publish-test.yml")],
 )
-def test_publisher_security_boundaries(index, file, flag):
+def test_publisher_security_boundaries(index, file):
     # Workflow files are intentionally excluded from distributions.
     path = ROOT / ".github/workflows" / file
     if not path.exists():
@@ -92,7 +89,9 @@ def test_publisher_security_boundaries(index, file, flag):
     assert "pull_request" not in body
     assert body.count("id-token: write") == 1
     assert f"name: {index}" in body
-    assert f"vars.{flag} == 'true'" in body
+    # The protected environment's manual approval is the single publication switch.
+    assert "PUBLISH_ENABLED" not in body
+    assert f"environment:\n      name: {index}" in body
     assert "github.event_name == 'push'" in body
     assert "skip-existing: false" in body
     assert "attestations: true" in body
