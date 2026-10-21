@@ -9,5 +9,4 @@ Public method signatures, retry/redirect/redaction behavior, PolyForm Noncommerc
 ## Validation — 2026-10-21 KST
 
 - Local: offline tests (new cases for the error link, UTM tags on authenticated/public calls, parameter preservation and User-Agent version), Ruff lint/format, mypy, Twine, artifact/license/credential-pattern checks and clean wheel/sdist installs.
-- Server compatibility: the backend ignores undeclared query parameters (public `/v1/sources` with UTM tags returned 200) and nginx has no proxy cache keyed by query string. No authenticated live API request was made.
 - Reviewed hashes: see [release artifacts](release-artifacts.md).
