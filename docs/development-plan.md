@@ -6,7 +6,7 @@ Service parent: [iono-flux#44](https://github.com/hongjunna/iono-flux/issues/44)
 2. [#2 subsequent endpoints](https://github.com/hongjunna/ionoflux-python/issues/2): TEC/MUF, propagation, stations and WSPR/PSK with contract, provider policy and model/observation distinction. Async, pandas extras and bounded historical splitting are also later work, not v0.1 claims.
 3. [#3 initial release](https://github.com/hongjunna/ionoflux-python/issues/3): completed on 2026-10-20. PyPI v0.1.0, clean installation, artifact checksums and attestations were verified. [Release evidence](https://github.com/hongjunna/ionoflux-python/releases/tag/python-v0.1.0) is historical and immutable. Future endpoint work remains in #2; the optional smoke workflow in PR #8 is separate and unmerged.
 
-The official distribution/import name is **ionoflux**: `pip install ionoflux`. Python 3.11+ is required. PolyForm Noncommercial 1.0.0 and NOTICE apply; proposed API terms remain unapproved. v0.1.1 is a documentation/metadata patch prepared for separate merge and publication approval. Protected GitHub environments and Trusted Publishing remain mandatory; TestPyPI can be skipped for this patch.
+The official distribution/import name is **ionoflux**: `pip install ionoflux`. Python 3.11+ is required. PolyForm Noncommercial 1.0.0 and NOTICE apply; proposed API terms remain unapproved. v0.1.2 adds the key page link to missing-key errors and fixed SDK UTM usage tags; see the release preparation document. Protected GitHub environments and Trusted Publishing remain mandatory; TestPyPI can be skipped for this patch.
 
 ## Development setup and validation
 

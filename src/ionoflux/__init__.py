@@ -1,6 +1,6 @@
 """Official IonoFlux Python SDK."""
 
-from ._client import Client
+from ._client import VERSION, Client
 from ._exceptions import (
     APIError,
     AuthenticationError,
@@ -18,7 +18,7 @@ from ._exceptions import (
 from ._response import APIResponse, RateLimit
 from ._validation import Category, Dataset, Interval, Metric
 
-__version__ = "0.1.1"
+__version__ = VERSION
 __all__ = [
     "Client",
     "APIResponse",

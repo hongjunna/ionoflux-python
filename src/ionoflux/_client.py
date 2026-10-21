@@ -42,6 +42,10 @@ from ._validation import (
 )
 
 Params = dict[str, Any]
+VERSION = "0.1.2"
+KEY_URL = "https://ionoflux.runvia.app/account"
+# Fixed request-origin tags for IonoFlux usage statistics; never user, key or host data.
+UTM_PARAMS = {"utm_source": "python", "utm_medium": "sdk", "utm_content": VERSION}
 SAFE_HEADERS = {
     "content-type",
     "x-ratelimit-limit",
@@ -101,7 +105,8 @@ class Client:
             follow_redirects=False,
             trust_env=False,
             transport=transport,
-            headers={"Accept": "application/json", "User-Agent": "ionoflux-python/0.1.0"},
+            params=UTM_PARAMS,
+            headers={"Accept": "application/json", "User-Agent": f"ionoflux-python/{VERSION}"},
         )
         self._max_retries = max_retries
         self.space_weather = SpaceWeather(self)
@@ -141,7 +146,9 @@ class Client:
         self, path: str, params: Params | None = None, *, public: bool = False, array: bool = False
     ) -> APIResponse[Any]:
         if not public and not self._key:
-            raise ConfigurationError("Set IONOFLUX_API_KEY or api_key to a Server API key")
+            raise ConfigurationError(
+                f"Set IONOFLUX_API_KEY or api_key to a Server API key. Get an API key: {KEY_URL}"
+            )
         for attempt in range(self._max_retries + 1):
             response: httpx.Response | None = None
             retryable = False

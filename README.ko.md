@@ -30,7 +30,7 @@ with Client() as client:
         print(error.retry_after, error.rate_limit.reset_seconds)
 ```
 
-명시적 `Client(api_key="...")`가 환경변수보다 우선합니다. `client.sources()`와 `client.data.status()`는 키 없이 가능합니다. 키를 코드·브라우저·공유 노트북 출력에 넣지 마세요.
+명시적 `Client(api_key="...")`가 환경변수보다 우선합니다. `client.sources()`와 `client.data.status()`는 키 없이 가능합니다. 그 밖의 호출을 키 없이 하면 발급 페이지 링크(https://ionoflux.runvia.app/account)를 포함한 `ConfigurationError`가 발생합니다. 키를 코드·브라우저·공유 노트북 출력에 넣지 마세요.
 
 ## 실제 지원 범위
 
@@ -61,6 +61,8 @@ with Client() as client:
 GET만 지원하고 연결 실패/timeout·읽기 실패/timeout·원격 프로토콜 오류와 502/503/504만 기본1회(설정0~3회) 재시도합니다. 총 backoff 최대1.75초, 429/일일 한도는 자동 재시도·대기하지 않습니다. 응답 디코딩/로컬 프로토콜 오류·pool timeout도 재시도하지 않습니다. 502/503/504라도 Retry-After가 있거나 남은 한도가0이면 ServerError를 즉시 반환합니다. `X-RateLimit-Reset`은 epoch가 아니라 UTC 자정까지 남은 초입니다. Retry-After는 문자열로 노출하며 호출 예산을 초과하지 않게 사용자가 판단합니다. timeout 기본10초는 HTTPX 작업별 제한으로 전체 wall-clock 제한은 아닙니다. 재시도도 한도에 포함될 수 있습니다.
 
 base_url 기본값은 `https://ionoflux.runvia.app/v1`, 사용자 주소는 HTTPS·/v1 끝·계정/쿼리/fragment 없음 조건을 요구합니다. 세션 재사용·context manager를 지원하고 리다이렉트와 환경 proxy/netrc는 비활성화합니다. SDK는 키를 URL·로그·예외에 넣지 않으며 공개 메타 경로에는 키를 보내지 않습니다. 사용자 지정 transport/HTTP 디버그 로깅은 인증 헤더를 노출할 수 있으므로 기록하지 마세요.
+
+IonoFlux 이용 통계를 위해 모든 요청에 고정 출처 태그 `utm_source=python&utm_medium=sdk&utm_content=<SDK 버전>`과 `User-Agent: ionoflux-python/<SDK 버전>` 헤더를 함께 보냅니다. 키·사용자·호스트·환경 정보는 포함하지 않습니다.
 
 ## 문서와 검증 범위
 

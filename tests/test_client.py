@@ -5,6 +5,7 @@ from pathlib import Path
 import httpx
 import pytest
 
+import ionoflux
 from ionoflux import (
     APIError,
     AuthenticationError,
@@ -92,9 +93,34 @@ def test_missing_key_allows_metadata_but_not_private_calls():
         c.sources()
         c.data.status()
         c.data.status("sfi")
-        with pytest.raises(ConfigurationError):
+        with pytest.raises(ConfigurationError) as caught:
             c.space_weather.current()
     assert paths == ["/v1/sources", "/v1/data-status", "/v1/data-status/sfi"]
+    message = str(caught.value)
+    assert "IONOFLUX_API_KEY or api_key" in message
+    assert message.endswith("Get an API key: https://ionoflux.runvia.app/account")
+    assert "\n" not in message
+
+
+def test_requests_carry_fixed_sdk_utm_tags_and_version():
+    seen = []
+
+    def handler(r):
+        seen.append(r)
+        return httpx.Response(200, json={})
+
+    tags = {"utm_source": "python", "utm_medium": "sdk", "utm_content": ionoflux.__version__}
+    with client(handler) as c:
+        c.sources()
+        c.solar.flux(interval="1d", limit=10)
+    assert ionoflux.__version__ == "0.1.2"
+    for r in seen:
+        assert {k: r.url.params[k] for k in tags} == tags
+        assert r.headers["user-agent"] == f"ionoflux-python/{ionoflux.__version__}"
+        assert KEY not in str(r.url)
+    assert seen[0].url.params.keys() == tags.keys()
+    assert seen[1].url.params["interval"] == "1d"
+    assert seen[1].url.params["limit"] == "10"
 
 
 @pytest.mark.parametrize("key", ["", " ", "line\nbreak", "nonascii_한", "space key", "x\x7f"])
@@ -140,7 +166,8 @@ def test_custom_base_url():
         lambda r: httpx.Response(200, json={"url": str(r.url)}),
         base_url="https://staging.example/api/v1/",
     ) as c:
-        assert c.sources().data["url"] == "https://staging.example/api/v1/sources"
+        url = httpx.URL(c.sources().data["url"])
+        assert url.copy_with(query=None) == "https://staging.example/api/v1/sources"
 
 
 @pytest.mark.parametrize(
