@@ -28,21 +28,32 @@ from ._exceptions import (
 )
 from ._response import APIResponse, JSONObject, RateLimit
 from ._validation import (
+    BANDS,
+    CALLSIGN,
     CATEGORIES,
     DATASETS,
     INTERVALS,
     METRIC_SOURCES,
+    NOISE_ENVIRONMENTS,
+    PROPAGATION_MODES,
+    Band,
     Category,
     Dataset,
     Interval,
     Metric,
+    NoiseEnvironment,
+    PropagationMode,
+    choice,
     date_range,
     integer,
+    number,
+    place,
     utc,
+    whole,
 )
 
 Params = dict[str, Any]
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 KEY_URL = "https://ionoflux.runvia.app/account"
 # Fixed request-origin tags for IonoFlux usage statistics; never user, key or host data.
 UTM_PARAMS = {"utm_source": "python", "utm_medium": "sdk", "utm_content": VERSION}
@@ -114,6 +125,9 @@ class Client:
         self.geomagnetic = Geomagnetic(self)
         self.alerts = Alerts(self)
         self.data = Data(self)
+        self.ionosphere = Ionosphere(self)
+        self.propagation = Propagation(self)
+        self.observations = Observations(self)
 
     def __repr__(self) -> str:
         return "Client(api_key=<redacted>)"
@@ -403,3 +417,236 @@ class Geomagnetic(Resource):
         limit: int = 5000,
     ) -> APIResponse[JSONObject]:
         return self._series("geomagnetic/ap", start=start, end=end, interval=interval, limit=limit)
+
+
+def _time(params: Params, name: str, value: datetime | None) -> None:
+    if value is not None:
+        params[name] = utc(value).isoformat()
+
+
+class Ionosphere(Resource):
+    """GloTEC-derived maps (model) and GIRO ionosonde measurements (observations)."""
+
+    @staticmethod
+    def _map(time: datetime | None, lat: float | None, lon: float | None, fmt: str) -> Params:
+        choice("format", fmt, ("json", "geojson"))
+        params: Params = {"format": fmt}
+        _time(params, "time", time)
+        if (lat is None) != (lon is None):
+            raise ValueError("Pass lat and lon together for a point value, or neither for the grid")
+        if lat is not None and lon is not None:
+            params["lat"] = number("lat", lat, -90, 90)
+            params["lon"] = number("lon", lon, -180, 180)
+        return params
+
+    def tec(
+        self,
+        *,
+        time: datetime | None = None,
+        lat: float | None = None,
+        lon: float | None = None,
+        format: Literal["json", "geojson"] = "json",
+    ) -> APIResponse[JSONObject]:
+        return self._client._get("ionosphere/tec", self._map(time, lat, lon, format))
+
+    def muf(
+        self,
+        *,
+        time: datetime | None = None,
+        lat: float | None = None,
+        lon: float | None = None,
+        format: Literal["json", "geojson"] = "json",
+        hop_km: float = 3000.0,
+        source: Literal["model", "ionosonde"] = "model",
+    ) -> APIResponse[JSONObject]:
+        choice("source", source, ("model", "ionosonde"))
+        params = self._map(time, lat, lon, format)
+        if source == "ionosonde" and (lat is not None or format != "json" or hop_km != 3000.0):
+            # The server returns measured station values only; it would silently ignore these.
+            raise ValueError("source='ionosonde' does not accept lat/lon, geojson or hop_km")
+        params.update(hop_km=number("hop_km", hop_km, 0, 4000), source=source)
+        return self._client._get("ionosphere/muf", params)
+
+    def stations(self, *, max_age_hours: int = 6) -> APIResponse[JSONObject]:
+        params = {"max_age_hours": whole("max_age_hours", max_age_hours, 1, 48)}
+        return self._client._get("ionosphere/stations", params)
+
+
+class Propagation(Resource):
+    """IonoFlux HF path model predictions; see the response `model` for method and limits."""
+
+    @staticmethod
+    def _link(
+        mode: PropagationMode,
+        power: float,
+        tx_gain: float,
+        rx_gain: float,
+        noise: NoiseEnvironment,
+        path: Literal["auto", "short", "long"],
+    ) -> Params:
+        choice("mode", mode, PROPAGATION_MODES)
+        choice("noise", noise, NOISE_ENVIRONMENTS)
+        choice("path", path, ("auto", "short", "long"))
+        return {
+            "mode": mode,
+            "power": number("power", power, 0, 100000, above=True),
+            "tx_gain": number("tx_gain", tx_gain, -20, 30),
+            "rx_gain": number("rx_gain", rx_gain, -20, 30),
+            "noise": noise,
+            "path": path,
+        }
+
+    def path(
+        self,
+        from_: str,
+        to: str,
+        frequency: float,
+        *,
+        time: datetime | None = None,
+        mode: PropagationMode = "ft8",
+        power: float = 100.0,
+        tx_gain: float = 2.15,
+        rx_gain: float = 2.15,
+        noise: NoiseEnvironment = "rural",
+        path: Literal["auto", "short", "long"] = "auto",
+    ) -> APIResponse[JSONObject]:
+        params: Params = {
+            "from": place("from_", from_),
+            "to": place("to", to),
+            "frequency": number("frequency", frequency, 1.8, 54),
+        }
+        params.update(self._link(mode, power, tx_gain, rx_gain, noise, path))
+        _time(params, "datetime", time)
+        return self._client._get("propagation/path", params)
+
+    def forecast(
+        self,
+        from_: str,
+        to: str,
+        *,
+        start: datetime | None = None,
+        hours: int = 24,
+        mode: PropagationMode = "ft8",
+        power: float = 100.0,
+        tx_gain: float = 2.15,
+        rx_gain: float = 2.15,
+        noise: NoiseEnvironment = "rural",
+        path: Literal["auto", "short", "long"] = "auto",
+    ) -> APIResponse[JSONObject]:
+        params: Params = {
+            "from": place("from_", from_),
+            "to": place("to", to),
+            "hours": whole("hours", hours, 1, 72),
+        }
+        params.update(self._link(mode, power, tx_gain, rx_gain, noise, path))
+        _time(params, "start", start)
+        return self._client._get("propagation/forecast", params)
+
+    def conditions(
+        self, location: str | None = None, *, time: datetime | None = None
+    ) -> APIResponse[JSONObject]:
+        params: Params = {}
+        if location is not None:
+            params["location"] = place("location", location)
+        _time(params, "datetime", time)
+        return self._client._get("propagation/conditions", params)
+
+
+class Observations(Resource):
+    """Real PSK Reporter / WSPRnet reception reports; absence of reports is not a closed band."""
+
+    def live(
+        self,
+        *,
+        minutes: int = 15,
+        band: Band | None = None,
+        mode: str | None = None,
+        source: Literal["pskreporter", "wsprnet"] | None = None,
+        bbox: tuple[float, float, float, float] | None = None,
+        limit: int = 2000,
+    ) -> APIResponse[JSONObject]:
+        params: Params = {
+            "minutes": whole("minutes", minutes, 1, 60),
+            "limit": whole("limit", limit, 1, 5000),
+        }
+        if source is not None:
+            choice("source", source, ("pskreporter", "wsprnet"))
+            params["source"] = source
+        if bbox is not None:
+            if not isinstance(bbox, tuple) or len(bbox) != 4:
+                raise ValueError("bbox must be a (min_lon, min_lat, max_lon, max_lat) tuple")
+            w, s, e, n = (
+                number("bbox longitude", bbox[0], -180, 180),
+                number("bbox latitude", bbox[1], -90, 90),
+                number("bbox longitude", bbox[2], -180, 180),
+                number("bbox latitude", bbox[3], -90, 90),
+            )
+            if not (w < e and s < n):
+                raise ValueError("bbox requires min_lon < max_lon and min_lat < max_lat")
+            params["bbox"] = f"{w},{s},{e},{n}"
+        return self._client._get("observations/live", _filters(params, band, mode))
+
+    def paths(
+        self,
+        from_: str,
+        to: str,
+        *,
+        radius_km: float = 500.0,
+        hours: float = 1.0,
+        band: Band | None = None,
+    ) -> APIResponse[JSONObject]:
+        params: Params = {
+            "from": place("from_", from_),
+            "to": place("to", to),
+            "radius_km": number("radius_km", radius_km, 50, 1500),
+            "hours": number("hours", hours, 0, 6, above=True),
+        }
+        return self._client._get("observations/paths", _filters(params, band, None))
+
+    def bands(
+        self,
+        location: str | None = None,
+        *,
+        radius_km: float = 1000.0,
+        role: Literal["rx", "tx"] = "rx",
+        minutes: int = 15,
+        mode: str | None = None,
+    ) -> APIResponse[JSONObject]:
+        choice("role", role, ("rx", "tx"))
+        params: Params = {
+            "radius_km": number("radius_km", radius_km, 50, 3000),
+            "role": role,
+            "minutes": whole("minutes", minutes, 5, 60),
+        }
+        if location is not None:
+            params["location"] = place("location", location)
+        return self._client._get("observations/bands", _filters(params, None, mode))
+
+    def callsign(
+        self,
+        callsign: str,
+        *,
+        role: Literal["tx", "rx"] = "tx",
+        hours: float = 24.0,
+        limit: int = 300,
+    ) -> APIResponse[JSONObject]:
+        if not isinstance(callsign, str) or not CALLSIGN.fullmatch(callsign):
+            raise ValueError("Invalid callsign")
+        choice("role", role, ("tx", "rx"))
+        params: Params = {
+            "role": role,
+            "hours": number("hours", hours, 0, 48, above=True),
+            "limit": whole("limit", limit, 1, 1000),
+        }
+        return self._client._get(f"observations/callsign/{quote(callsign, safe='')}", params)
+
+
+def _filters(params: Params, band: Band | None, mode: str | None) -> Params:
+    if band is not None:
+        choice("band", band, BANDS)
+        params["band"] = band
+    if mode is not None:
+        if not isinstance(mode, str) or not 1 <= len(mode) <= 16:
+            raise ValueError("mode must be a string of 1 to 16 characters")
+        params["mode"] = mode
+    return params

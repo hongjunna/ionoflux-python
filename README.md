@@ -2,7 +2,7 @@
 
 # IonoFlux Python SDK
 
-Official synchronous Python SDK for [IonoFlux](https://ionoflux.runvia.app), providing space-weather, solar and geomagnetic data, alerts and public data metadata. Requires **Python 3.11+**.
+Official synchronous Python SDK for [IonoFlux](https://ionoflux.runvia.app), providing space-weather, solar and geomagnetic data, alerts, TEC/MUF maps, ionosonde stations, HF propagation predictions, observed PSK Reporter/WSPRnet reception reports and public data metadata. Requires **Python 3.11+**.
 
 ```sh
 pip install ionoflux
@@ -69,6 +69,41 @@ All return `APIResponse[T]`: `.data` (JSON dict, or list of dicts for alerts), `
 
 Shared time-series arguments: `start=None`, `end=None`, `interval="raw"`, `limit=5000` (1..10000). Omitting dates preserves endpoint-specific **server defaults**. The API keeps the newest limited points then returns them ascending. No cursor or automatic full-history download. `1mo` is a fixed **30-day** bucket. Requests with explicit start and end are limited to 3660 days; query allowance does not imply historical availability. Consult `data.status()` for retention and actual coverage.
 
+## Ionosphere, propagation and observations
+
+Added in 0.1.3. All need a Server key and return a JSON object. Locations (`from_`, `to`, `location`) accept `"lat,lon"`, a Maidenhead locator such as `"PM37"`, or a place name resolved by the server (2..200 characters). Optional `time`/`start` must be timezone-aware and are sent as UTC.
+
+| Call | Options and limits |
+|---|---|
+| `client.ionosphere.tec(...)` | `time`, `lat`+`lon` together for a point value, `format="json"` or `"geojson"` |
+| `client.ionosphere.muf(...)` | same as `tec`, plus `hop_km=3000` (0..4000), `source="model"` or `"ionosonde"` |
+| `client.ionosphere.stations(max_age_hours=6)` | 1..48; GIRO ionosonde stations with their latest observation |
+| `client.propagation.path(from_, to, frequency, ...)` | `frequency` 1.8..54 MHz, `time` (≤ 72 h ahead), `mode`, `power`, `tx_gain`, `rx_gain`, `noise`, `path` |
+| `client.propagation.forecast(from_, to, ...)` | `start`, `hours=24` (1..72), same link options |
+| `client.propagation.conditions(location=None, time=None)` | Per-band OPEN/MARGINAL/CLOSED; global day/night summary without `location` |
+| `client.observations.live(...)` | `minutes=15` (1..60), `band`, `mode`, `source`, `bbox=(min_lon, min_lat, max_lon, max_lat)`, `limit=2000` (1..5000) |
+| `client.observations.paths(from_, to, ...)` | `radius_km=500` (50..1500), `hours=1` (max 6), `band` |
+| `client.observations.bands(location=None, ...)` | `radius_km=1000` (50..3000), `role="rx"` or `"tx"`, `minutes=15` (5..60), `mode` |
+| `client.observations.callsign(callsign, ...)` | `role="tx"` or `"rx"`, `hours=24` (max 48), `limit=300` (1..1000) |
+
+Link options: `mode` is `"ft8"`, `"ft4"`, `"wspr"`, `"cw"`, `"ssb"`, `"am"`, `"rtty"` or `"psk31"`; `noise` is `"city"`, `"residential"`, `"rural"` or `"quiet"`; `path` is `"auto"`, `"short"` or `"long"`. `band` is an amateur band from `"160m"` to `"6m"`. Observation `mode` is free text such as `"FT8"`. Out-of-range arguments raise `ValueError` before any request is sent, so they do not use quota.
+
+```python
+from ionoflux import Client
+
+with Client() as client:
+    muf = client.ionosphere.muf(lat=37.57, lon=126.98)
+    print(muf.data["muf_mhz"], muf.data["attribution"])
+
+    path = client.propagation.path("Seoul, South Korea", "FN20", 14.074, mode="ft8")
+    print(path.data["prediction"]["availability"], path.data["model"]["limitations"])
+
+    heard = client.observations.paths("PM37", "PM95", hours=1, band="20m")
+    print(heard.data["a_to_b"]["total_spots"])
+```
+
+Know what each value is. `source="model"` TEC/MUF and every `propagation.*` result are **model outputs** from NOAA GloTEC maps (future times use persistence with a storm correction; see the response `model` field). `source="ionosonde"` MUF and `stations()` are **measurements** at stations. `observations.*` are real reception reports: they prove one-way propagation at that moment, but no reports does not prove a closed band. Keep each response's `attribution`; PSK Reporter, WSPRnet, GIRO and GloTEC carry their own terms. The server decides how many points a grid or live map has; ask for a point value or a smaller `bbox`/`limit` when you do not need everything.
+
 ## Errors, networking and security
 
 `AuthenticationError` (401), `PermissionDeniedError` (403), `NotFoundError` (404), `ValidationError` (422), `RateLimitError` (429), `ServerError` (5xx) and `RedirectError` (3xx) extend `APIError`. Exceptions carry `status_code`, redacted textual `detail`, `rate_limit` and `retry_after`; no HTTP request object. Other failures use `TransportError`, `ResponseError` or `ConfigurationError`. Locally invalid method arguments raise `ValueError`.
@@ -83,9 +118,9 @@ For IonoFlux usage statistics every request also carries fixed origin tags `utm_
 
 [API contract and limits](https://github.com/hongjunna/ionoflux-python/blob/main/docs/api-contract.md) · [Development plan](https://github.com/hongjunna/ionoflux-python/blob/main/docs/development-plan.md) · [Changelog](https://github.com/hongjunna/ionoflux-python/blob/main/CHANGELOG.md)
 
-This synchronous SDK does **not** provide async clients, pandas/DataFrame conversion, TEC/MUF, propagation, stations or WSPR/PSK queries. Those are [future work](https://github.com/hongjunna/ionoflux-python/issues/2).
+This synchronous SDK does **not** provide async clients, pandas/DataFrame conversion, bulk/historical spot downloads or map rendering.
 
-v0.1.0 was released on PyPI on 2026-10-20. Its [release record](https://github.com/hongjunna/ionoflux-python/releases/tag/python-v0.1.0) preserves the original artifacts and verification evidence. A bounded nine-request Server-key acceptance passed for current/SFI/Kp/statistics/alerts/scales/public metadata; actual 403/429 responses and every provider/endpoint permutation were not exercised. See [acceptance and limits](https://github.com/hongjunna/ionoflux-python/blob/main/docs/release-review.md). This documentation patch does not claim new live API acceptance.
+v0.1.0 was released on PyPI on 2026-10-20. Its [release record](https://github.com/hongjunna/ionoflux-python/releases/tag/python-v0.1.0) preserves the original artifacts and verification evidence. A bounded nine-request Server-key acceptance passed for current/SFI/Kp/statistics/alerts/scales/public metadata; actual 403/429 responses and every provider/endpoint permutation were not exercised. See [acceptance and limits](https://github.com/hongjunna/ionoflux-python/blob/main/docs/release-review.md). The 0.1.3 ionosphere/propagation/observation calls were checked against the public OpenAPI schema and mocked responses; no new authenticated live acceptance is claimed.
 
 Development tests block network connections and use HTTPX MockTransport. CI checks Linux Python 3.11–3.15, Windows/macOS 3.14, minimum HTTPX 0.27.0, Ruff, mypy, README rendering, wheel/sdist builds and separate clean installations. Publishing uses protected GitHub environments and Trusted Publishing with manual approval; normal PR CI does not publish. Development setup and validation commands are in the [development plan](https://github.com/hongjunna/ionoflux-python/blob/main/docs/development-plan.md).
 

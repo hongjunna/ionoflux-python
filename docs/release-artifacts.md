@@ -1,8 +1,17 @@
 # Reviewed release artifacts
 
-## v0.1.2 candidate
+## v0.1.3 candidate
 
-Reproduce using `SOURCE_DATE_EPOCH=1792540800` and the pinned `.github/release/requirements.txt` toolchain. `.github/release/0.1.2.json` is the strict machine-readable manifest. Two consecutive local builds produced identical hashes. Exact main CI, the `python-v0.1.2` tag and the owner's manual `pypi` environment approval remain required. These release documents and manifests are excluded from wheel/sdist.
+Reproduce using `SOURCE_DATE_EPOCH=1792555200` and the pinned `.github/release/requirements.txt` toolchain. `.github/release/0.1.3.json` is the strict machine-readable manifest. Two consecutive local builds produced identical hashes. These release documents and manifests are excluded from wheel/sdist.
+
+| Artifact | SHA256 |
+|---|---|
+| `ionoflux-0.1.3-py3-none-any.whl` | `24da12e6ad2431f2f1399b3f2ad52c52746fab97e937a0ca04b09c479028f83f` |
+| `ionoflux-0.1.3.tar.gz` | `ae9f72fd8d76dee138fffeb939b201d5579b52b8af3459f3638804a4ab9ddd06` |
+
+## v0.1.2 published — immutable historical evidence
+
+Published 2026-10-21 from `93b4860`, tag `python-v0.1.2`, with `SOURCE_DATE_EPOCH=1792540800` and `.github/release/0.1.2.json`.
 
 | Artifact | SHA256 |
 |---|---|

@@ -16,7 +16,15 @@ from ._exceptions import (
     ValidationError,
 )
 from ._response import APIResponse, RateLimit
-from ._validation import Category, Dataset, Interval, Metric
+from ._validation import (
+    Band,
+    Category,
+    Dataset,
+    Interval,
+    Metric,
+    NoiseEnvironment,
+    PropagationMode,
+)
 
 __version__ = VERSION
 __all__ = [
@@ -27,6 +35,9 @@ __all__ = [
     "Dataset",
     "Interval",
     "Metric",
+    "Band",
+    "PropagationMode",
+    "NoiseEnvironment",
     "IonoFluxError",
     "APIError",
     "AuthenticationError",
